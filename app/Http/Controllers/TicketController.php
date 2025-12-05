@@ -227,6 +227,15 @@ class TicketController extends Controller
         $canManageStatus = $canAssign;
         $validated = $request->validated();
 
+        if ($user->hasRole('user') && $ticket->created_by !== $user->id) {
+            abort(403);
+        }
+
+        // dev hanya boleh update ticket yang assigned ke dia
+        if ($user->hasRole('dev') && $ticket->assigned_to !== $user->id) {
+            abort(403);
+        }
+
         try{
             DB::transaction(function () use ($request, $validated, $ticket, $canAssign, $canManagePriority, $canManageStatus) {
                 $payload = $validated;
@@ -287,6 +296,35 @@ class TicketController extends Controller
             return back()->with('success', 'Ticket updated.');
         }catch(Throwable $th){
             Log::error('Error update ticket', [
+                'message' => $th->getMessage(),
+                'file' => $th->getFile(),
+                'line' => $th->getLine(),
+            ]);
+            return back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function destroy(Request $request, ticket $ticket)
+    {
+        Log::info('DEBUG DELETE TICKET', [
+            'method'   => $request->method(),
+            'all'      => $request->all(),
+        ]);
+
+        $user = $request->user();
+
+        $canDelete = $user->hasAnyRole(['admin', 'pm'])
+            || ($user->hasRole('user') && $ticket->created_by === $user->id);
+
+        if (! $canDelete) {
+            abort(403);
+        }
+
+        try{
+            $ticket->delete();
+            return back()->with('success', 'Ticket deleted.');
+        }catch(Throwable $th){
+            Log::error('Error delete ticket', [
                 'message' => $th->getMessage(),
                 'file' => $th->getFile(),
                 'line' => $th->getLine(),

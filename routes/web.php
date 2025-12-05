@@ -55,16 +55,14 @@ Route::middleware('auth')->group(function () {
 
     });
         
-    Route::middleware('role:user|dev|admin|pm')->group(function () {
-        Route::prefix('tickets')->name('tickets.')->controller(TicketController::class)
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::post('/', 'store')->name('store');
-                Route::put('{ticket}', 'update')->name('update');
-                Route::delete('{ticket}', 'destroy')->name('destroy');
-            }
-        );
-    });
+    Route::prefix('tickets')->name('tickets.')->controller(TicketController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::put('{ticket}', 'update')->name('update');
+            Route::delete('{ticket}', 'destroy')->name('destroy');
+        }
+    );
 });
 
 require __DIR__.'/auth.php';

@@ -6,22 +6,9 @@ import { TicketPriorityBadge } from '@/Components/badge/PriorityBadge';
 import { TicketStatusBadge } from '@/Components/badge/StatusBadge';
 import { TicketCategoryBadge } from '@/Components/badge/CategoryBadge';
 import { ConfirmDeleteDialog } from '@/Components/ConfirmDelete';
-import { router, Link, usePage } from '@inertiajs/react';
-import { MoreHorizontal } from 'lucide-react';
+import { router,  usePage } from '@inertiajs/react';
 import { TicketDialog } from './TicketDialog';
-import { TicketMilestone } from './TicketMilestone';
 import { TicketDetailDialog } from './DetailDialog';
-import { Value } from '@radix-ui/react-select';
-
-const formatData = (value?: string | null) => {
-    if(!value) return '-';
-    return new Date(value).toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
-
-}
 
 export const columns: ColumnDef<TicketRow>[] = [
     
@@ -125,18 +112,6 @@ export const columns: ColumnDef<TicketRow>[] = [
             <span className="text-[11px] text-muted-foreground md:text-xs">
                 {ticket.assignedTo?.name ?? 'Unassigned'}
             </span>
-            );
-        },
-    },
-    {
-        accessorKey: 'due_date',
-        header: 'Due Date',
-        cell: ({ row }) => {
-            const value = row.original.due_date;
-            return (
-                <span className="text-[11px] text-muted-foreground md:text-xs">
-                    {formatData(value)}
-                </span>
             );
         },
     },

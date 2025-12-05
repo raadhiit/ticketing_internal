@@ -1,7 +1,7 @@
 'use client';
 
 import { useForm } from '@inertiajs/react';
-import { FormEvent, ReactNode, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Plus, Pencil } from 'lucide-react';
 
 import { BaseFormDialog } from '@/Components/dialog/BaseFormDialog';
