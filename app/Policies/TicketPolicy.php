@@ -178,13 +178,14 @@ class TicketPolicy
      */
     public function createTask(User $user, Ticket $ticket): bool
     {
-        // Admin / PM
-        if ($user->can('tasks.manage-all')) {
+        // Admin / PM bebas buat task
+        if ($user->hasAnyRole(['admin', 'pm'])) {
             return true;
         }
 
-        // Dev → cuma di ticket yg assigned ke dia & punya tasks.create
+        // Dev → cuma di tiket yang assigned ke dia & punya permission create
         if (
+            $user->hasRole('dev') &&
             $user->can('tasks.create') &&
             (int) $ticket->assigned_to === (int) $user->id
         ) {
@@ -193,6 +194,8 @@ class TicketPolicy
 
         return false;
     }
+
+
 
     public function updateTask(User $user, Ticket $ticket): bool
     {

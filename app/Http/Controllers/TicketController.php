@@ -272,6 +272,9 @@ class TicketController extends Controller
         $isDev            = $user->hasRole('dev') && ! $canManageTasks; // dev murni
         $canReorderAll    = $canManageTasks;
         $canChangeStatusOwnTasks = $isDev || $canManageTasks;
+        $canCreateTask = $user->can('createTask', $ticket);
+        $canEditTask = $canManageTasks;
+        $canDeleteTask = $canManageTasks;
 
         $devOptions = User::role('dev')
             ->select('id', 'name')
@@ -326,6 +329,9 @@ class TicketController extends Controller
             'canReorderAllTasks'      => $canReorderAll,           // admin/pm: bebas geser semua task
             'canChangeStatusOwnTasks' => $canChangeStatusOwnTasks, // dev boleh ubah status task miliknya
             'isDev'                   => $isDev,
+            'canCreateTask'           => $canCreateTask,
+            'canEditTask'             => $canEditTask,
+            'canDeleteTask'           => $canDeleteTask,
         ]);
     }
 

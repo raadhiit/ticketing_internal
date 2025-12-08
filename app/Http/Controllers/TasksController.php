@@ -120,17 +120,14 @@ class TasksController extends Controller
 
     }
 
-    public function destroy(Request $request, tasks $task, ticket $ticket)
+    public function destroy(Request $request, ticket $ticket, tasks $task)
     {
-        $this->authorize('deleteTask', $ticket);
-
-        $user = $request->user();
+        // authorize cukup sekali, dan idealnya berdasarkan task
+        $this->authorize('deleteTask', $ticket); // atau $task kalau policy lu pakai Task
 
         if ($task->ticket_id !== $ticket->id) {
             abort(404);
         }
-
-        $this->authorize('deleteTask', $ticket);
 
         try {
             DB::transaction(function () use ($ticket, $task) {
@@ -152,8 +149,8 @@ class TasksController extends Controller
             return back()->with('success', 'Task deleted.');
         } catch (Throwable $th) {
             Log::error('Error delete task', [
-                'task_id'   => $task->id,
-                'ticket_id' => $ticket->id,
+                'task_id'   => $task->id ?? null,
+                'ticket_id' => $ticket->id ?? null,
                 'message'   => $th->getMessage(),
                 'file'      => $th->getFile(),
                 'line'      => $th->getLine(),
@@ -162,6 +159,7 @@ class TasksController extends Controller
             return back()->with('error', $th->getMessage());
         }
     }
+
 
     public function reorder(Request $request, Ticket $ticket)
     {

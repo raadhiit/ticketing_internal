@@ -88,7 +88,7 @@ export default function TicketShowPage(pageProps: TaskProps) {
 
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold">Tasks</h2>
-                    {(canCreateTask || isDev) && (
+                    {canCreateTask && (
                         <PrimaryButton type="button" onClick={handleAddTask}>
                             + Add Task
                         </PrimaryButton>

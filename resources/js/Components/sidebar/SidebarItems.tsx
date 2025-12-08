@@ -57,7 +57,7 @@ export const sidebarSections: SidebarSection[] = [
     {
         label: 'Transaksi',
         collapsible: true,
-        defaultOpen: false,
+        defaultOpen: true,
         items: [
             { 
                 title: 'Tickets', 
