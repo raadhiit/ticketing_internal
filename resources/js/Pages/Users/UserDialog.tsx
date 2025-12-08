@@ -16,7 +16,7 @@ type BaseUserForm = {
     password: string;
     is_active: boolean;
     department_id: number | '' | null;
-    roles: string;
+    role: string;
 };
 
 export function UserFormDialog({
@@ -24,7 +24,7 @@ export function UserFormDialog({
     user,
     departments,
     trigger,
-    roles
+    role
 }: UserFormDialogProps) {
     const isEdit = mode === 'edit';
     const [open, setOpen] = useState(false);
@@ -36,8 +36,9 @@ export function UserFormDialog({
             password: '',
             is_active: user?.is_active ?? true,
             department_id: user?.department_id ?? '',
-            roles: user?.roles ?? 'user'
+            role: user?.role ?? 'user'
         });
+
 
     const handleClose = () => {
         setOpen(false);
@@ -201,18 +202,18 @@ export function UserFormDialog({
                 <select
                     id="role"
                     className="bg-card px-3 py-2 border rounded-md w-full text-muted-foreground dark:text-muted-foreground text-sm"
-                    value={data.roles}
-                    onChange={(e) => setData('roles', e.target.value)}
+                    value={data.role}
+                    onChange={(e) => setData('role', e.target.value)}
                 >
                     <option value="">Pilih role</option>
-                    {roles.map((role) => (
-                        <option key={role.id} value={role.name}>
-                            {role.name}
+                    {role.map((r) => (
+                        <option key={r.id} value={r.name}>
+                            {r.name}
                         </option>
                     ))}
                 </select>
-                {errors.roles && (
-                    <p className="text-red-500 text-xs">{errors.roles}</p>
+                {errors.role && (
+                    <p className="text-red-500 text-xs">{errors.role}</p>
                 )}
             </div>
 

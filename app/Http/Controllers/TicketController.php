@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\tasks;
 use App\Models\system;
 use App\Models\ticket;
 use Illuminate\Http\Request;
@@ -16,6 +17,11 @@ use App\Http\Requests\Ticket\updateRequest;
 
 class TicketController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->authorizeResource(ticket::class, 'ticket');
+    }
 
     protected function generateTicketCode()
     {
@@ -32,7 +38,6 @@ class TicketController extends Controller
 
         return 'TCK-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
-
 
     public function index(Request $request)
     {
@@ -132,11 +137,15 @@ class TicketController extends Controller
             'priorities'        => $priorities,
             'statuses'          => $statuses,
             'canCreate'         => $user->can('tickets.create'),
+            'canDelete'         => $user->can('tickets.delete'),
+            'canEdit'           => $user->can('tickets.update-status')
+                                || $user->can('tickets.assign')
+                                || $user->can('tickets.set-priority'),
             'canAssign'         => $canAssign,
             'canManagePriority' => $canManagePriority,
             'canManageStatus'   => $canManageStatus,
             'assignees'         => $assignees,
-            'filters'          => $simpleFilters,
+            'filters'           => $simpleFilters,
         ]);
     }
 
@@ -209,6 +218,115 @@ class TicketController extends Controller
 
             return back()->with('error', 'Failed to create ticket.');
         }
+    }
+
+    public function show(Request $request, ticket $ticket)
+    {
+        $user = $request->user();
+
+        if($user->hasRole('user') && $ticket->created_by !== $user->id)
+        {
+            abort(403);
+        }
+        if($user->hasRole('dev') && $ticket->assigned_to !== $user->id)
+        {
+            abort(403);
+        }
+
+        $ticket->load([
+            'system:id,code',
+            'createdBy:id,name',
+            'assignedTo:id,name',
+            'attachments:id,ticket_id,original_name,path',
+            'tasks.assignee:id,name',
+        ]);
+
+        $rawTasks = $ticket->tasks->sortBy('position')->groupBy('status');
+        $statuses = ['todo', 'in_progress', 'review', 'done'];
+
+        $tasks = collect($statuses)->mapWithKeys(function (string $status) use ($rawTasks) {
+            $tasksForStatus = $rawTasks->get($status, collect());
+
+            return [
+                $status => $tasksForStatus->map(function (tasks $task) {
+                    return [
+                        'id'          => $task->id,
+                        'title'       => $task->title,
+                        'description' => $task->description,
+                        'status'      => $task->status,
+                        'position'    => $task->position,
+                        'assignee'    => $task->assignee
+                            ? [
+                                'id'   => $task->assignee->id,
+                                'name' => $task->assignee->name,
+                            ]
+                            : null,
+                        'created_at'  => $task->created_at?->toDateTimeString(),
+                        'updated_at'  => $task->updated_at?->toDateTimeString(),
+                    ];
+                })->values(),
+            ];
+        });
+
+        $canManageTasks   = $user->hasAnyRole(['admin', 'pm']);
+        $isDev            = $user->hasRole('dev') && ! $canManageTasks; // dev murni
+        $canReorderAll    = $canManageTasks;
+        $canChangeStatusOwnTasks = $isDev || $canManageTasks;
+
+        $devOptions = User::role('dev')
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get()
+            ->map(fn($u) => [
+                'id'   => $u->id,
+                'name' => $u->name,
+            ]);
+
+        return Inertia::render('tickets/tasks/show', [
+            'ticket' => [
+                'id'          => $ticket->id,
+                'code'        => $ticket->code,
+                'title'       => $ticket->title,
+                'description' => $ticket->description,
+
+                'system_id'   => $ticket->system_id,
+                'system_code' => $ticket->system?->code,
+
+                'category'    => $ticket->category,
+                'priority'    => $ticket->priority,
+                'status'      => $ticket->status,
+                'due_date'    => $ticket->due_date
+                    ? Carbon::parse($ticket->due_date)->format('Y-m-d')
+                    : null,
+
+                'createdBy'   => [
+                    'id'   => $ticket->createdBy->id,
+                    'name' => $ticket->createdBy->name,
+                ],
+                'assigned_to' => $ticket->assigned_to,
+                'assignedTo'  => $ticket->assignedTo
+                    ? [
+                        'id'   => $ticket->assignedTo->id,
+                        'name' => $ticket->assignedTo->name,
+                    ]
+                    : null,
+                'attachments' => $ticket->attachments->map(function ($att) {
+                    return [
+                        'id'            => $att->id,
+                        'original_name' => $att->original_name,
+                        'url'           => asset('storage/' . $att->path),
+                    ];
+                }),
+                'created_at'  => $ticket->created_at?->toDateTimeString(),
+                'updated_at'  => $ticket->updated_at?->toDateTimeString(),
+            ],
+            'tasks'                   => $tasks,
+            'devOptions'              => $devOptions,
+            'canManageTasks'          => $canManageTasks,          // admin/pm: bisa create/delete/assign
+            'canReorderAllTasks'      => $canReorderAll,           // admin/pm: bebas geser semua task
+            'canChangeStatusOwnTasks' => $canChangeStatusOwnTasks, // dev boleh ubah status task miliknya
+            'isDev'                   => $isDev,
+        ]);
     }
 
     public function update(updateRequest $request, ticket $ticket)

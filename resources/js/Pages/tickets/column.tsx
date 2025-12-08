@@ -6,7 +6,7 @@ import { TicketPriorityBadge } from '@/Components/badge/PriorityBadge';
 import { TicketStatusBadge } from '@/Components/badge/StatusBadge';
 import { TicketCategoryBadge } from '@/Components/badge/CategoryBadge';
 import { ConfirmDeleteDialog } from '@/Components/ConfirmDelete';
-import { router,  usePage } from '@inertiajs/react';
+import { router, Link, usePage } from '@inertiajs/react';
 import { TicketDialog } from './TicketDialog';
 import { TicketDetailDialog } from './DetailDialog';
 
@@ -126,6 +126,8 @@ export const columns: ColumnDef<TicketRow>[] = [
                 canManageStatus,
                 canAssign,
                 assignees,
+                canDelete,
+                canEdit,
             } = usePage<TicketsProps>().props;
 
             const ticketForEdit: TicketForEdit = {
@@ -164,22 +166,32 @@ export const columns: ColumnDef<TicketRow>[] = [
             };
 
             return (
-                <div className="flex justify-center items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
+                    <Link
+                        href={route('tickets.show', ticket.id)}
+                        className="rounded border px-2 py-1 text-[11px] hover:bg-gray-50"
+                    >
+                        Detail
+                    </Link>
                     <TicketDetailDialog ticket={detailTicket} />
-                    <TicketDialog
-                        mode="edit"
-                        systems={systems}
-                        ticket={ticketForEdit}
-                        canManagePriority={canManagePriority}
-                        canManageStatus={canManageStatus}
-                        canAssign={canAssign}
-                        assignees={assignees}
-                    />
-                    <ConfirmDeleteDialog
-                        resourceName="ticket"
-                        resourceLabel={`${ticket.code} - ${ticket.title}`}
-                        onConfirm={handleDelete}
-                    />
+                    {canEdit && (
+                        <TicketDialog
+                            mode="edit"
+                            systems={systems}
+                            ticket={ticketForEdit}
+                            canManagePriority={canManagePriority}
+                            canManageStatus={canManageStatus}
+                            canAssign={canAssign}
+                            assignees={assignees}
+                        />
+                    )}
+                    {canDelete && ( // ⬅️ HANYA KALO PUNYA tickets.delete
+                        <ConfirmDeleteDialog
+                            resourceName="ticket"
+                            resourceLabel={`${ticket.code} - ${ticket.title}`}
+                            onConfirm={handleDelete}
+                        />
+                    )}
                 </div>
             );
         },

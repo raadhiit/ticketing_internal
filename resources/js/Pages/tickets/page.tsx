@@ -39,31 +39,6 @@ export default function TicketPage() {
      >
          <Head title="Tickets" />
 
-         {/* <div className="py-6">
-             <div className="mx-auto sm:px-6 lg:px-4 max-w-7xl">
-                 <div className="bg-card shadow-md border-2 rounded-lg overflow-hidden">
-                     <div className="p-4">
-                         <DataTable
-                             columns={columns}
-                             data={tickets.data}
-                             filterKey="title"
-                             filterPlaceholder="Cari kode atau judul ticket"
-                             rightToolbarContent={
-                                 <TicketDialog
-                                     mode="create"
-                                     systems={systems}
-                                     canManagePriority={canManagePriority}
-                                     canAssign={canAssign}
-                                     assignees={assignees}
-                                     canManageStatus={canManageStatus}
-                                 />
-                             }
-                        />
-                     </div>
-                 </div>
-             </div>
-         </div> */}
-
          <div className="space-y-4 py-4">
              <div className="mx-auto sm:px-6 lg:px-4 lg:max-w-8xl">
                  <div className="bg-card shadow-md p-4 border-2 rounded-lg overflow-hidden">

@@ -19,12 +19,19 @@ class UserController extends Controller
 {
     use ToggleActive;
 
+    public function __construct()
+    {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     public function toggleActive(Request $request, User $user)
     {
+        $this->authorize('update', $user);
+
         return $this->handleToggleActive($request, $user, 'user');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $users = User::with('department')
             ->orderBy('created_at', 'desc')
@@ -35,7 +42,7 @@ class UserController extends Controller
                 'email' => $user->email,
                 'department' => $user->department->name ?? "-",
                 'department_id' => $user->department_id,
-                'roles' => $user->getRoleNames(), // Collection nama role
+                'role' => $user->getRoleNames()->first(), // Collection nama role
                 'is_active' => $user->is_active,
                 'created_at' => $user->created_at->diffForHumans(),
             ]);
@@ -46,7 +53,8 @@ class UserController extends Controller
         return Inertia::render('Users/page', [
             'users' => $users,
             'departments' => $departments,
-            'roles' => $roles
+            'role' => $roles,
+            'canManageUsers' => $request->user()->can('users.manage'),
         ]);
     }
 
@@ -80,8 +88,8 @@ class UserController extends Controller
     {
 
         $data = $request->validated();
-        $roleName = $data['roles'] ?? null;
-        unset($data['roles']);
+        $roleName = $data['role'] ?? null;
+        unset($data['role']);
 
         if (!array_key_exists('password', $data) || $data['password'] === null || $data['password'] === '') {
             unset($data['password']);
@@ -126,24 +134,4 @@ class UserController extends Controller
         }
     }
 
-
-    // public function toggleActive(Request $request, User $user)
-    // {
-    //     $validated = $request->validate([
-    //         'is_active' => 'required|boolean',
-    //     ]);
-
-    //     try {
-    //         $user->update([
-    //             'is_active' => $request->boolean('is_active'),
-    //         ]);
-
-    //         // Untuk Inertia + router.patch, redirect 303 enak
-    //         return back(303)->with('success', 'Status user berhasil diperbarui.');
-    //     } catch (Throwable $th) {
-    //         report($th);
-
-    //         return back(303)->with('error', 'Gagal memperbarui status user.');
-    //     }
-    // }
 }

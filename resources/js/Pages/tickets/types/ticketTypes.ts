@@ -46,6 +46,8 @@ export type TicketsProps = PageProps<{
     canCreate: boolean;
     assignees: AssginedOption[];
     filters: TicketFilters;
+    canDelete: boolean;
+    canEdit: boolean;
 }>;
 
 export type TicketAttachmentRow = {
@@ -62,6 +64,7 @@ export type SystemOption = {
   id: number;
   code: string;
 };
+
 
 export type TicketDetail = {
   id: number;

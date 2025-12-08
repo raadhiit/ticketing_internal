@@ -6,7 +6,7 @@ import { DataTable } from '@/Components/table/DataTable'
 import { DeptFormDialog } from './DeptDialog';
 
 export default function DeptPage() {
-    const { departments } = usePage<DepartmentsProps>().props;
+    const { departments, canManageDepartments } = usePage<DepartmentsProps>().props;
     return (
         <AuthenticatedLayout
             header={
@@ -26,7 +26,9 @@ export default function DeptPage() {
                                 filterKey='name'
                                 filterPlaceholder='Cari nama department'
                                 rightToolbarContent={
-                                    <DeptFormDialog mode="create" />
+                                    canManageDepartments && (
+                                        <DeptFormDialog mode="create" />
+                                    )
                                 }
                             />
                         </div>

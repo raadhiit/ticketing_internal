@@ -2,9 +2,9 @@
 
 import { ConfirmDeleteDialog } from "@/Components/ConfirmDelete";
 import { Switch } from "@/Components/ui/switch";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { ColumnDef } from "@tanstack/react-table";
-import type { DepartmentsRow } from "./types/DeptTypes";
+import type { DepartmentsProps, DepartmentsRow } from "./types/DeptTypes";
 import { DeptFormDialog } from './DeptDialog';
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,9 @@ export const columns: ColumnDef<DepartmentsRow>[] = [
         header: 'Status',
         cell: ({ row }) => {
             const departments = row.original;
+            const { canManageDepartments } = usePage<DepartmentsProps>().props;
             const handleToggle = (value: boolean) => {
+                if (!canManageDepartments) return;
                 router.patch(
                     route('departments.toggle-active', departments.id),
                     { is_active: value },
@@ -43,6 +45,7 @@ export const columns: ColumnDef<DepartmentsRow>[] = [
                     <Switch
                         variant="status"
                         checked={departments.is_active}
+                        disabled={!canManageDepartments}
                         onCheckedChange={handleToggle}
                         className="scale-90 md:scale-100" // kecil di mobile
                     />
@@ -70,7 +73,9 @@ export const columns: ColumnDef<DepartmentsRow>[] = [
         header: 'Aksi',
         cell: ({ row }) => {
             const departments = row.original;
+            const { canManageDepartments } = usePage<DepartmentsProps>().props;
             const handleDelete = () => {
+                if (!canManageDepartments) return;
                 router.delete(route('departments.destroy', departments.id), {
                     preserveScroll: true,
                 });

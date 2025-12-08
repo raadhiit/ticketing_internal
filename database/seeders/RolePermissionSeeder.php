@@ -37,6 +37,9 @@ class RolePermissionSeeder extends Seeder
             'tickets.delete',
 
             // TASKS (KANBAN)
+            'tasks.create',
+            'tasks.update',
+            'tasks.delete',
             'tasks.manage-all',
             'tasks.manage-assigned',
             'tasks.view-all',
@@ -73,7 +76,7 @@ class RolePermissionSeeder extends Seeder
             'tickets.assign',
             'tickets.set-priority',
             'tickets.update-status',
-            // 'tickets.delete',      // bisa di-on kan kalau mau PM boleh delete
+            'tickets.delete',      // bisa di-on kan kalau mau PM boleh delete
 
             'tasks.manage-all',
             'tasks.manage-assigned',
@@ -88,6 +91,9 @@ class RolePermissionSeeder extends Seeder
             'tickets.create',
             'tickets.update-status',
 
+            'tasks.create',
+            'tasks.update',
+            'tasks.delete',
             'tasks.manage-assigned',
             'tasks.view-assigned',
         ]);
@@ -96,6 +102,7 @@ class RolePermissionSeeder extends Seeder
         $user->syncPermissions([
             'tickets.view.own',
             'tickets.create',
+            'tickets.update-status',
             // kalau mau user bisa cancel ticket sendiri, nanti bisa tambah permission lain
         ]);
     }

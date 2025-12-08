@@ -6,7 +6,7 @@ import { UserFormDialog } from './UserDialog';
 import { DataTable } from '@/Components/table/DataTable'
 
 export default function UserPage() {
-    const { users, departments, roles } = usePage<UsersPageProps>().props;
+    const { users, departments, role, canManageUsers } = usePage<UsersPageProps>().props;
 
     return (
         <AuthenticatedLayout
@@ -20,19 +20,26 @@ export default function UserPage() {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-4">
-                    <div className="overflow-hidden rounded-lg bg-card shadow-md border-2">
+                    <div className="overflow-hidden rounded-lg border-2 bg-card shadow-md">
                         <div className="p-4">
                             <DataTable<UserRow, unknown>
                                 columns={Columns}
                                 data={users.data}
-                                filterKey="name" 
+                                filterKey="name"
                                 filterPlaceholder="Filter by Cari User"
                                 rightToolbarContent={
-                                    <UserFormDialog
-                                        mode="create"
-                                        departments={departments}
-                                        roles={roles}
-                                    />
+                                    // <UserFormDialog
+                                    //     mode="create"
+                                    //     departments={departments}
+                                    //     role={role}
+                                    // />
+                                    canManageUsers && ( // ⬅️ HANYA ADMIN/PM DSB
+                                        <UserFormDialog
+                                            mode="create"
+                                            departments={departments}
+                                            role={role}
+                                        />
+                                    )
                                 }
                             />
                         </div>

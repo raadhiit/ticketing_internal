@@ -45,4 +45,9 @@ class ticket extends Model
     {
         return $this->hasMany(TicketAttachment::class);
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(tasks::class);
+    }
 }

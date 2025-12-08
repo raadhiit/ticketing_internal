@@ -2,9 +2,9 @@
 
 import { ConfirmDeleteDialog } from "@/Components/ConfirmDelete";
 import { Switch } from "@/Components/ui/switch";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { ColumnDef } from "@tanstack/react-table";
-import type { SystemRow } from './types/systemTypes';
+import type { SystemRow, SystemProps } from './types/systemTypes';
 import { SystemDialog } from './SystemDialog';
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,10 @@ export const columns: ColumnDef<SystemRow>[] = [
         header: 'Status',
         cell: ({ row }) => {
             const systems = row.original;
+            const { canManageSystems } = usePage<SystemProps>().props;
+
             const handleToggle = (value: boolean) => {
+                if (!canManageSystems) return;
                 router.patch(
                     route('systems.toggle-active', systems.id),
                     { is_active: value },
@@ -67,6 +70,7 @@ export const columns: ColumnDef<SystemRow>[] = [
                         variant="status"
                         checked={systems.is_active}
                         onCheckedChange={handleToggle}
+                        disabled={!canManageSystems}
                         className="scale-90 md:scale-100" // kecil di mobile
                     />
                     <span
@@ -95,11 +99,22 @@ export const columns: ColumnDef<SystemRow>[] = [
         header: 'Aksi',
         cell: ({ row }) => {
             const systems = row.original;
+            const { canManageSystems } = usePage<SystemProps>().props;
+            console.log('canManageSystems = ', canManageSystems);
             const handleDelete = () => {
+                if(!canManageSystems) return;
                 router.delete(route('systems.destroy', systems.id), {
                     preserveScroll: true,
                 });
             };
+
+            if(!canManageSystems) {
+                return (
+                    <div className="flex items-center justify-center text-[11px] text-muted-foreground md:text-xs">
+                        -
+                    </div>
+                )
+            }
 
             return (
                 <div className="flex justify-center items-center gap-2">

@@ -17,95 +17,88 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from '@/Components/ui/sidebar';
-import { Link, usePage, router } from '@inertiajs/react';
+import type { PageProps } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { ChevronDown, ChevronUp, User2 } from 'lucide-react';
 import ApplicationLogo from '../ApplicationLogo';
-import { sidebarSections } from './SidebarItems';
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '../ui/collapsible';
-import { PageProps, RoleName } from '@/types';
+import { sidebarSections } from './SidebarItems';
 
 export function AppSidebar() {
-    // const user = usePage().props.auth.user;
     const { auth } = usePage<PageProps>().props;
     const user = auth.user;
 
-    const userRoles: RoleName[] = (user.roles ?? []) as RoleName[];
+    // === PENTING: ambil permissions dari Inertia props ===
+    const permissions = new Set<string>(user?.permissions ?? []);
 
-    const hasRole = (allowed?: RoleName[]) => {
-        if (!allowed || allowed.length === 0) return true; // no restriction
-        if (!userRoles.length) return false;
-        return allowed.some((role) => userRoles.includes(role));
+    const hasPermission = (required?: string[]) => {
+        if (!required || required.length === 0) return true; // no restriction
+        if (permissions.size === 0) return false;
+        return required.some((perm) => permissions.has(perm));
     };
 
     const isItemActive = (routeName: string) => {
-        if(!routeName) return false;
+        if (!routeName) return false;
 
-        return (
-            route().current(routeName) ||
-            route().current(routeName + '.*')
-        );
+        return route().current(routeName) || route().current(routeName + '.*');
     };
+
+    // Sekalian pre-filter section di awal biar kode JSX lebih bersih
+    const visibleSections = sidebarSections
+        .map((section) => ({
+            ...section,
+            items: section.items.filter((item) =>
+                hasPermission(item.requiresPermission),
+            ),
+        }))
+        .filter((section) => section.items.length > 0);
 
     return (
         <Sidebar collapsible="icon">
-            <SidebarHeader className="py-2 border-b">
+            <SidebarHeader className="border-b py-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size="lg"
-                            className="gap-2 px-2"
-                        >
-                        {/* Logo jadi kotak kecil, aman di icon mode */}
-                        <div className="flex justify-center items-center rounded-lg w-8 h-8 text-sidebar-primary-foreground">
-                            <ApplicationLogo className="w-4 h-4" />
-                        </div>
-
-                        {/* Teks: otomatis di-manage sama CSS sidebar saat collapsed */}
-                        <div className="flex-1 grid overflow-hidden text-left leading-tight">
-                            <span className="font-semibold text-sm truncate">
-                                Ticketing
-                            </span>
-                            <span className="text-[11px] text-muted-foreground truncate">
-                                RSHM
-                            </span>
-                        </div>
+                        <SidebarMenuButton size="lg" className="gap-2 px-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
+                                <ApplicationLogo className="h-4 w-4" />
+                            </div>
+                            <div className="grid flex-1 overflow-hidden text-left leading-tight">
+                                <span className="truncate text-sm font-semibold">
+                                    Ticketing
+                                </span>
+                                <span className="truncate text-[11px] text-muted-foreground">
+                                    RSHM
+                                </span>
+                            </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
 
             <SidebarContent>
-                {sidebarSections.map((section) => {
-                    // filter items by role
-                    const visibleItems = section.items.filter((item) =>
-                        hasRole(item.roles),
-                    );
-
-                    // kalau di section ini nggak ada satupun item yg boleh buat role user, skip seluruh section
-                    if (visibleItems.length === 0) return null;
-
-                    return section.collapsible ? (
+                {visibleSections.map((section) =>
+                    section.collapsible ? (
                         <Collapsible
                             key={section.label}
-                            defaultOpen
+                            defaultOpen={section.defaultOpen ?? true}
                             className="group/collapsible"
                         >
                             <SidebarGroup>
                                 <SidebarGroupLabel asChild>
                                     <CollapsibleTrigger>
                                         {section.label}
-                                        <ChevronDown className="ml-auto group-data-[state=open]/collapsible:rotate-180 transition-transform" />
+                                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                                     </CollapsibleTrigger>
                                 </SidebarGroupLabel>
 
                                 <CollapsibleContent>
                                     <SidebarGroupContent>
                                         <SidebarMenu>
-                                            {visibleItems.map((item) => (
+                                            {section.items.map((item) => (
                                                 <SidebarMenuItem
                                                     key={item.title}
                                                 >
@@ -121,11 +114,10 @@ export function AppSidebar() {
                                                                     ? route(
                                                                           item.routeName,
                                                                       )
-                                                                    : (item.routeName ??
-                                                                      '#')
+                                                                    : '#'
                                                             }
                                                         >
-                                                            <item.icon className="w-4 h-4" />
+                                                            <item.icon className="h-4 w-4" />
                                                             <span>
                                                                 {item.title}
                                                             </span>
@@ -145,7 +137,7 @@ export function AppSidebar() {
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <SidebarMenu>
-                                    {visibleItems.map((item) => (
+                                    {section.items.map((item) => (
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton
                                                 asChild
@@ -159,11 +151,10 @@ export function AppSidebar() {
                                                             ? route(
                                                                   item.routeName,
                                                               )
-                                                            : (item.routeName ??
-                                                              '#')
+                                                            : '#'
                                                     }
                                                 >
-                                                    <item.icon className="w-4 h-4" />
+                                                    <item.icon className="h-4 w-4" />
                                                     <span>{item.title}</span>
                                                 </Link>
                                             </SidebarMenuButton>
@@ -172,8 +163,8 @@ export function AppSidebar() {
                                 </SidebarMenu>
                             </SidebarGroupContent>
                         </SidebarGroup>
-                    );
-                })}
+                    ),
+                )}
             </SidebarContent>
 
             <SidebarFooter>
@@ -187,7 +178,7 @@ export function AppSidebar() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             side="top"
-                            className="bg-card w-[--radix-popper-anchor-width]"
+                            className="w-[--radix-popper-anchor-width] bg-card"
                         >
                             <DropdownMenuItem
                                 asChild

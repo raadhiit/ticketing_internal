@@ -5,22 +5,28 @@ namespace App\Http\Controllers;
 use Throwable;
 use Inertia\Inertia;
 use App\Models\departments;
+use App\Traits\ToggleActive;
 use Illuminate\Http\Request;
 use App\Http\Requests\DeptRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Traits\ToggleActive;
-
 
 class DepartmentsController extends Controller
 {
     use ToggleActive;
 
-    public function toggleActive(Request $request, departments $department) {
+    public function __construct()
+    {
+        $this->authorizeResource(departments::class, 'department');
+    }
+
+    public function toggleActive(Request $request, departments $department)
+    {
+        $this->authorize('update', $department);
         return $this->handleToggleActive($request, $department, 'department');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $departments = departments::orderBy('created_at', 'desc')
             ->paginate(10)
@@ -32,7 +38,8 @@ class DepartmentsController extends Controller
             ]);
 
         return Inertia::render('departments/page', [
-            'departments' => $departments
+            'departments' => $departments,
+            'canManageDepartments' => $request->user()->can('departments.manage'),
         ]);
     }
 
@@ -91,26 +98,4 @@ class DepartmentsController extends Controller
         }
     }
 
-    // public function toggleActive(Request $request, departments $department)
-    // {
-    //     $validated = $request->validate([
-    //         'is_active' => 'required|boolean',
-    //     ]);
-
-    //     try{
-    //         $department->update([
-    //             'is_active' => $request->boolean('is_active'),
-    //         ]);
-
-    //         // Untuk Inertia + router.patch, redirect 303 enak
-    //         return back(303)->with('success', 'Status departemen berhasil diperbarui.');
-    //     }catch(Throwable $th){
-    //         Log::error('Error update Department Status', [
-    //             'message' => $th->getMessage(),
-    //             'file' => $th->getFile(),
-    //             'line' => $th->getLine(),
-    //         ]);
-    //         return back(303)->with('error', 'Gagal memperbarui status departemen.');
-    //     }
-    // }
 }

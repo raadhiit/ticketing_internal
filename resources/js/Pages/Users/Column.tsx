@@ -13,7 +13,7 @@ export const Columns: ColumnDef<UserRow>[] = [
         id: 'no',
         header: '#',
         cell: ({ row }) => (
-            <span className="text-xs md:text-md">{row.index + 1}</span>
+            <span className="md:text-md text-xs">{row.index + 1}</span>
         ),
         enableSorting: false,
         enableColumnFilter: false,
@@ -22,31 +22,31 @@ export const Columns: ColumnDef<UserRow>[] = [
         accessorKey: 'name',
         header: 'Nama',
         cell: ({ row }) => (
-            <span className="text-xs md:text-md">{row.original.name}</span>
+            <span className="md:text-md text-xs">{row.original.name}</span>
         ),
     },
     {
         accessorKey: 'email',
         header: 'Email',
         cell: ({ row }) => (
-            <span className="text-xs md:text-md">{row.original.email}</span>
+            <span className="md:text-md text-xs">{row.original.email}</span>
         ),
     },
     {
         accessorKey: 'department',
         header: 'Department',
         cell: ({ row }) => (
-            <span className="text-xs md:text-md">
+            <span className="md:text-md text-xs">
                 {row.original.department ?? '-'}
             </span>
         ),
     },
     {
-        accessorKey: 'roles',
+        accessorKey: 'role',
         header: 'role',
         cell: ({ row }) => (
-            <span className="text-xs md:text-md">
-                {row.original.roles ?? '-'}
+            <span className="md:text-md text-xs">
+                {row.original.role ?? '-'}
             </span>
         ),
     },
@@ -55,7 +55,10 @@ export const Columns: ColumnDef<UserRow>[] = [
         header: 'Status',
         cell: ({ row }) => {
             const user = row.original;
+            const { canManageUsers } = usePage<UsersPageProps>().props;
+
             const handleToggle = (value: boolean) => {
+                if (!canManageUsers) return; // jaga-jaga
                 router.patch(
                     route('users.toggle-active', user.id),
                     { is_active: value },
@@ -66,9 +69,10 @@ export const Columns: ColumnDef<UserRow>[] = [
             return (
                 <div className="flex w-full items-center justify-center gap-1 text-[11px] md:gap-2 md:text-xs">
                     <Switch
-                        variant="status" // ⬅️ penting: cuma di sini jadi hijau/merah
+                        variant="status"
                         checked={user.is_active}
                         onCheckedChange={handleToggle}
+                        disabled={!canManageUsers} // ⬅️ BACA AJA KALO GA BOLEH
                         className="scale-90 md:scale-100"
                     />
                     <span
@@ -90,13 +94,24 @@ export const Columns: ColumnDef<UserRow>[] = [
         header: 'Aksi',
         cell: ({ row }) => {
             const user = row.original;
-            const { departments, roles } = usePage<UsersPageProps>().props;
+            const { departments, role, canManageUsers } =
+                usePage<UsersPageProps>().props;
 
             const handleDelete = () => {
+                if (!canManageUsers) return;
                 router.delete(route('users.destroy', user.id), {
                     preserveScroll: true,
                 });
             };
+
+            if (!canManageUsers) {
+                // Kalau cuma boleh lihat, gak usah render tombol apa pun
+                return (
+                    <div className="flex items-center justify-center text-[11px] text-muted-foreground md:text-xs">
+                        -
+                    </div>
+                );
+            }
 
             return (
                 <div className="flex items-center justify-center gap-1 text-[11px] md:gap-2 md:text-xs">
@@ -109,10 +124,10 @@ export const Columns: ColumnDef<UserRow>[] = [
                             email: user.email,
                             is_active: user.is_active,
                             department_id: user.department_id,
-                            roles: user.roles,
+                            role: user.role,
                         }}
                         departments={departments}
-                        roles={roles}
+                        role={role}
                     />
 
                     {/* Delete */}

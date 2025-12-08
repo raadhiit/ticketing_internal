@@ -17,7 +17,8 @@ export type UsersPageProps = PageProps<{
         links: any[];
     };
     departments: Department[];
-    roles: Role[];
+    role: Role[];
+    canManageUsers: boolean;
 }>;
 
 export type UserRow = {
@@ -27,7 +28,7 @@ export type UserRow = {
     department: string;
     department_id: number;
     is_active: boolean;
-    roles: string;
+    role: string;
     created_at: string;
 };
 
@@ -37,14 +38,14 @@ export type UserForEdit = {
     email: string;
     is_active: boolean;
     department_id: number | null;
-    roles: string;
+    role: string;
 };
 
 export type UserFormDialogProps = {
     mode: 'create' | 'edit';
     user?: UserForEdit; // wajib kalau mode = "edit"
     departments: Department[];
-    roles: Role[];
+    role: Role[];
     trigger?: ReactNode;
 };
 

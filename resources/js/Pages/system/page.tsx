@@ -6,7 +6,7 @@ import { SystemDialog } from './SystemDialog';
 import { SystemProps } from './types/systemTypes';
 
 export default function SysPage() {
-    const { systems } = usePage<SystemProps>().props;
+    const { systems, canManageSystems } = usePage<SystemProps>().props;
 
     return (
         <AuthenticatedLayout
@@ -25,7 +25,9 @@ export default function SysPage() {
                                 filterKey="name"
                                 filterPlaceholder="Cari nama system"
                                 rightToolbarContent={
-                                    <SystemDialog mode="create" />
+                                    canManageSystems && (
+                                        <SystemDialog mode="create" />
+                                    )
                                 }
                             />
                         </div>

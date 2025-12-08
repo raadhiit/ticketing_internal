@@ -13,6 +13,7 @@ export type DepartmentsProps = PageProps<{
         data: DepartmentsRow[];
         links: any[];
     };
+    canManageDepartments: boolean;
 }>;
 
 export type DeptForEdit = {

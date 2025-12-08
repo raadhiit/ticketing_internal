@@ -23,6 +23,7 @@ export type SystemProps = PageProps & {
         data: SystemRow[];
         links: any[];
     };
+    canManageSystems: boolean;
 };
 
 export type SystemFormDialogProps = {

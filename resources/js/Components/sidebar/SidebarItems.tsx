@@ -1,8 +1,5 @@
 import {
     Home,
-    Inbox,
-    Search,
-    Settings,
     User,
     Building,
     Boxes,
@@ -15,7 +12,8 @@ export type SidebarItem = {
     title: string;
     routeName: string;
     icon: LucideIcon;
-    roles?: RoleName[];
+    // role?: RoleName[];
+    requiresPermission?: string[];
 };
 
 export type SidebarSection = {
@@ -46,13 +44,13 @@ export const sidebarSections: SidebarSection[] = [
                 title: 'Departments', 
                 routeName: 'departments.index', 
                 icon: Building,
-                roles: ['admin', 'pm']
+                requiresPermission: ['departments.manage'],
             },
             {
                 title: 'Systems',
                 routeName: 'systems.index',
                 icon: Boxes,
-                roles: ['admin', 'pm']
+                requiresPermission: ['systems.manage'],
             },
         ],
     },
@@ -76,7 +74,7 @@ export const sidebarSections: SidebarSection[] = [
                 title: 'User Management',
                 routeName: 'users.index',
                 icon: User,
-                roles: ['admin', 'pm']
+                requiresPermission: ['users.manage'],
             },
         ],
     },

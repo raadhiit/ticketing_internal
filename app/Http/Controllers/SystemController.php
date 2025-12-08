@@ -15,11 +15,18 @@ class SystemController extends Controller
 {
     use ToggleActive;
 
-    public function toggleActive(Request $request, system $system) {
+    public function __construct()
+    {
+        $this->authorizeResource(system::class, 'system');
+    }
+
+    public function toggleActive(Request $request, system $system) 
+    {
+        $this->authorize('update', $system);
         return $this->handleToggleActive($request, $system, 'system');
     }
     
-    public function index()
+    public function index(Request $request)
     {
         $system = system::orderBy('created_at', 'desc')
             ->paginate(10)
@@ -33,7 +40,8 @@ class SystemController extends Controller
             ]);
 
         return Inertia::render('system/page', [
-            'systems' => $system
+            'systems' => $system,
+            'canManageSystems' => $request->user()->can('systems.manage'),
         ]);
     }
 

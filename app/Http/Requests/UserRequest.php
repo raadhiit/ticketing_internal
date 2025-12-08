@@ -48,8 +48,8 @@ class UserRequest extends FormRequest
             ],
 
             'is_active' => ['sometimes','required', 'boolean'],
-            'roles' => ['sometimes','array', 'max:255'],
-            'roles.*'   => ['string', 'max:255'],
+            'role' => ['sometimes','string', 'max:255'],
+
         ];
     }
 }
