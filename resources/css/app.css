@@ -3,55 +3,57 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* --background: 0 0% 100%; */
-    --background: 210 40% 96%;
-    /* --background: 210 40% 96%; */
-    --foreground: 240 10% 3%;
-    /* --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%; */
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    :root {
+    /* BASE LAYER – warm grey yang lembut, nyaman di mata */
+    --background: 210 20% 96%;          /* page background - abu kebiruan sangat soft */
+    --foreground: 215 25% 20%;          /* text utama - dark blue grey */
+
+    /* CARD / CONTENT – putih dengan sedikit kehangatan */
+    --card: 210 25% 98%;
+    --card-foreground: 215 25% 20%;
+
+    --popover: 210 25% 98%;
+    --popover-foreground: 215 25% 20%;
+
+    /* PRIMARY – biru yang lebih soft dan mature */
+    --primary: 215 60% 55%;             /* biru yang lebih tenang */
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 0 0% 63.9%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+
+    /* SECONDARY / ACCENT – abu kebiruan lembut */
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 215 25% 25%;
+
+    --muted: 210 15% 88%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 210 20% 92%;
+    --accent-foreground: 215 25% 25%;
+
+    /* ERROR - merah yang tidak terlalu mencolok */
+    --destructive: 0 65% 58%;
     --destructive-foreground: 210 40% 98%;
-    /* --border: 214.3 31.8% 91.4%; */
-    --border: 214 25% 90%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* BORDER / INPUT - abu yang subtle */
+    --border: 210 18% 85%;
+    --input: 210 18% 90%;
+    --ring: 215 60% 55%;
+
     --radius: 0.5rem;
-    /* --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8% */
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 210 40% 96%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    /* --sidebar-border: 220 13% 91%; */
-    --sidebar-border: 214 25% 88%;
-    --sidebar-ring: 222.2 84% 4.9%;
+
+    /* SIDEBAR – sedikit lebih gelap dari background untuk depth */
+    --sidebar-background: 215 25% 94%;
+    --sidebar-foreground: 215 25% 20%;
+
+    --sidebar-primary: 215 60% 55%;
+    --sidebar-primary-foreground: 210 40% 98%;
+
+    --sidebar-accent: 210 20% 90%;
+    --sidebar-accent-foreground: 215 25% 20%;
+
+    --sidebar-border: 210 18% 85%;
+    --sidebar-ring: 215 60% 55%;
   }
+
   .dark {
     /* --background: 240 10% 3.9%; */
     --background: 0 0% 3.9%;
@@ -86,7 +88,8 @@
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%}
+    --sidebar-ring: 217.2 91.2% 59.8%
+  }
 }
 
 @layer base {

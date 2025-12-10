@@ -30,9 +30,9 @@ export default function Authenticated({
                 {flash?.info && (
                     <FlashMessage type="info" message={flash.info} />
                 )}
-                <div className="min-h-screen bg-background p-4 text-foreground sm:rounded-lg">
+                <div className="min-h-screen bg-background text-foreground">
                     {header && (
-                        <header className="sticky top-0 z-20 border-b backdrop-blur">
+                        <header className="sticky top-0 z-20 border-b border-border bg-card">
                             <div className="flex items-center gap-3 px-3 py-3 sm:px-4">
                                 {/* Kiri: trigger + title */}
                                 <div className="flex flex-1 items-center gap-2">
@@ -50,7 +50,7 @@ export default function Authenticated({
                         </header>
                     )}
 
-                    <main>{children}</main>
+                    <main className="sm:rounded-lg">{children}</main>
                 </div>
             </SidebarInset>
         </SidebarProvider>

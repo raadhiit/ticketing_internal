@@ -65,7 +65,7 @@ export default function TicketShowPage(pageProps: TaskProps) {
         >
             <Head title={`${ticket.code}`} />
 
-            <div className="space-y-4 p-2">
+            <div className="space-y-4 p-4">
                 {/* BACK BUTTON + INFO TICKET */}
                 <div className="flex items-center justify-between">
                     <Button

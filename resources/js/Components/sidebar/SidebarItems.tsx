@@ -30,7 +30,7 @@ export const sidebarSections: SidebarSection[] = [
         items: [
             {
                 title: 'Dashboard',
-                routeName: 'dashboard',
+                routeName: 'dashboard.index',
                 icon: Home,
             },
         ],

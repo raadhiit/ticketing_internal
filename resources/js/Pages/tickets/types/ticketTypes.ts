@@ -19,6 +19,8 @@ export type TicketRow = {
     attachments: TicketAttachmentRow[];
     created_at: string;
     updated_at: string;
+    department_id?: number | null;
+    department?: string | null;
 };
 
 export type TicketFilters = {
@@ -29,6 +31,7 @@ export type TicketFilters = {
     search?: string;
     due_from?: string | null;
     due_to?: string | null;
+    code?: string;
 };
 
 export type TicketsProps = PageProps<{
@@ -48,6 +51,7 @@ export type TicketsProps = PageProps<{
     filters: TicketFilters;
     canDelete: boolean;
     canEdit: boolean;
+    canViewNetwork: boolean;
 }>;
 
 export type TicketAttachmentRow = {
@@ -67,19 +71,20 @@ export type SystemOption = {
 
 
 export type TicketDetail = {
-  id: number;
-  code: string;
-  title: string;
-  description: string | null;
-  category: TicketCategory;
-  priority: TicketPriority;
-  status: TicketStatus;
-  due_date: string | null;
-  system_code?: string;
-  created_by_name?: string;
-  assigned_to_name?: string | null;
-  created_at?: string;
-  attachments?: TicketAttachmentRow[];
+    id: number;
+    code: string;
+    title: string;
+    description: string | null;
+    category: TicketCategory;
+    priority: TicketPriority;
+    status: TicketStatus;
+    due_date: string | null;
+    system_code?: string;
+    created_by_name?: string;
+    assigned_to_name?: string | null;
+    created_at?: string;
+    attachments?: TicketAttachmentRow[];
+    department?: string | null;
 };
 
 export type TicketForEdit = {

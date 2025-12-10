@@ -9,6 +9,7 @@ import { ConfirmDeleteDialog } from '@/Components/ConfirmDelete';
 import { router, Link, usePage } from '@inertiajs/react';
 import { TicketDialog } from './TicketDialog';
 import { TicketDetailDialog } from './DetailDialog';
+import { Network } from 'lucide-react'
 
 export const columns: ColumnDef<TicketRow>[] = [
     
@@ -29,7 +30,7 @@ export const columns: ColumnDef<TicketRow>[] = [
 
             return (
                 <span
-                    className="font-semibold text-blue-600 dark:text-blue-400 text-xs md:text-sm"
+                    className="font-semibold text-muted-foreground dark:text-muted text-xs md:text-sm"
                 >
                     {ticket.code}
                 </span>
@@ -128,6 +129,7 @@ export const columns: ColumnDef<TicketRow>[] = [
                 assignees,
                 canDelete,
                 canEdit,
+                canViewNetwork,
             } = usePage<TicketsProps>().props;
 
             const ticketForEdit: TicketForEdit = {
@@ -157,6 +159,7 @@ export const columns: ColumnDef<TicketRow>[] = [
                 assigned_to_name: ticket.assignedTo?.name ?? null,
                 created_at: ticket.created_at,
                 attachments: ticket.attachments,
+                department: ticket.department ?? null,
             };
 
             const handleDelete = () => {
@@ -167,12 +170,14 @@ export const columns: ColumnDef<TicketRow>[] = [
 
             return (
                 <div className="flex items-center justify-center gap-2">
-                    <Link
-                        href={route('tickets.show', ticket.id)}
-                        className="rounded border px-2 py-1 text-[11px] hover:bg-gray-50"
-                    >
-                        Detail
-                    </Link>
+                    {canViewNetwork && (
+                        <Link
+                            href={route('tickets.show', ticket.id)}
+                            className="rounded border px-2 py-2 text-[11px] dark:hover:bg-gray-200"
+                        >
+                            <Network className="h-3 w-3 text-black dark:text-white" />
+                        </Link>
+                    )}
                     <TicketDetailDialog ticket={detailTicket} />
                     {canEdit && (
                         <TicketDialog

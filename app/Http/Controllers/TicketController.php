@@ -47,7 +47,8 @@ class TicketController extends Controller
             'system:id,code',
             'createdBy:id,name',
             'assignedTo:id,name',
-            'attachments:id,ticket_id,original_name,path'
+            'attachments:id,ticket_id,original_name,path',
+            'department:id,name',
         ]);
 
         if ($user->hasRole('user')) {
@@ -68,7 +69,14 @@ class TicketController extends Controller
                 $query->where($field, $value);
             }
         }
-        // $tickets = $query->latest()->paginate(10)->withQueryString();
+
+        if ($request->filled('code')) {
+            $code = $request->input('code');
+            $query->where('code', 'like', '%' . $code . '%');
+
+            $filters['code'] = $code;
+        }
+
         $tickets = $query
             ->latest()
             ->paginate(10)
@@ -109,8 +117,10 @@ class TicketController extends Controller
                         ];
                     }),
                     'created_at'  => $ticket->created_at?->toDateTimeString(),
-                        'updated_at'  => $ticket->updated_at?->toDateTimeString(),
-                    ];
+                    'updated_at'  => $ticket->updated_at?->toDateTimeString(),
+                    'department'    => $ticket->department?->name,
+                    'department_id' => $ticket->dept_id,
+                ];
             });
 
         $systems = system::orderBy('code')->get(['id', 'code']);
@@ -119,9 +129,10 @@ class TicketController extends Controller
         $priorities = ['unassigned', 'low', 'medium', 'high', 'urgent'];
         $statuses = ['open', 'in_progress', 'resolved', 'closed'];
 
-        $canAssign = $user->hasRole(['admin', 'pm']);
+        $canAssign = $user->hasAnyRole(['admin', 'pm']);
         $canManagePriority = $canAssign;
         $canManageStatus = $canAssign;
+        $canViewNetwork = $user->hasAnyRole(['admin', 'pm', 'dev']);
 
         $assignees = $canAssign 
             ? User::role('dev')
@@ -144,6 +155,7 @@ class TicketController extends Controller
             'canAssign'         => $canAssign,
             'canManagePriority' => $canManagePriority,
             'canManageStatus'   => $canManageStatus,
+            'canViewNetwork'    => $canViewNetwork,
             'assignees'         => $assignees,
             'filters'           => $simpleFilters,
         ]);
@@ -164,6 +176,7 @@ class TicketController extends Controller
                 $payload = $validated;
 
                 $payload['created_by'] = $user->id;
+                $payload['dept_id'] = $user->department_id;
                 $payload['code']       = $this->generateTicketCode();
 
                 // PRIORITY
@@ -338,12 +351,12 @@ class TicketController extends Controller
     public function update(updateRequest $request, ticket $ticket)
     {
 
-        Log::info('DEBUG UPDATE TICKET', [
-            'method'   => $request->method(),
-            'all'      => $request->all(),
-            'has_file' => $request->hasFile('attachment'),
-            'file'     => $request->file('attachment'),
-        ]);
+        // Log::info('DEBUG UPDATE TICKET', [
+        //     'method'   => $request->method(),
+        //     'all'      => $request->all(),
+        //     'has_file' => $request->hasFile('attachment'),
+        //     'file'     => $request->file('attachment'),
+        // ]);
 
         $user = $request->user();
         $canAssign = $user->hasAnyRole(['admin', 'pm']);

@@ -19,12 +19,8 @@ class ticket extends Model
         'priority',
         'status',
         'due_date',
+        'dept_id'
     ];
-
-    // protected $dates = [
-    //     'due_date',
-    //     'deleted_at',
-    // ];
 
     public function system()
     {
@@ -34,6 +30,11 @@ class ticket extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(departments::class, 'dept_id');
     }
 
     public function assignedTo()
@@ -49,5 +50,21 @@ class ticket extends Model
     public function tasks()
     {
         return $this->hasMany(tasks::class);
+    }
+
+    public function scopeForUserRole($query, User $user)
+    {
+        if ($user->hasRole('user')) {
+            // user biasa: cuma liat ticket yang dia buat
+            return $query->where('created_by', $user->id);
+        }
+
+        if ($user->hasRole('dev')) {
+            // dev: cuma liat ticket yang assigned ke dia
+            return $query->where('assigned_to', $user->id);
+        }
+
+        // admin / pm: liat semua
+        return $query;
     }
 }

@@ -20,6 +20,22 @@ type TicketDetailDialogProps = {
     trigger?: ReactNode;
 };
 
+const PRIORITY_CLASS: Record<string, string> = {
+    unassigned: 'bg-slate-700/40 text-slate-100',
+    low: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+    medium: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+    high: 'bg-orange-500/15 text-orange-300 border-orange-500/40',
+    urgent: 'bg-red-500/15 text-red-300 border-red-500/40',
+};
+
+const STATUS_CLASS: Record<string, string> = {
+    open: 'bg-blue-500/15 text-blue-300 border-blue-500/40',
+    in_progress: 'bg-purple-500/15 text-purple-300 border-purple-500/40',
+    resolved: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+    closed: 'bg-slate-500/20 text-slate-300 border-slate-500/40',
+};
+
+
 export function TicketDetailDialog({
     ticket,
     trigger,
@@ -39,149 +55,157 @@ export function TicketDetailDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
 
-            <DialogContent className="max-w-base lg:max-w-xl">
-                <DialogHeader className="space-y-3">
-                    <DialogTitle className="flex flex-col items-start">
-                        <span className="font-bold text-xl truncate">
-                            {ticket.title}
-                        </span>
-                        {ticket.code && (
-                            <span className="font-mono text-[12px] text-muted-foreground">
-                                {ticket.code}
-                            </span>
-                        )}
-                    </DialogTitle>
+            <DialogContent className="max-w-2xl border bg-card/95">
+                <DialogHeader className="space-y-4">
+                    {/* TOP ROW: title + meta penting */}
+                    <div className="flex items-start justify-between gap-4">
+                        {/* Kiri: title + code + system/category */}
+                        <div className="space-y-1">
+                            <DialogTitle className="text-lg font-semibold leading-tight">
+                                <span className="block truncate">
+                                    {ticket.title}
+                                </span>
+                            </DialogTitle>
 
-                    <DialogDescription asChild>
-                        <div className="flex flex-wrap items-center gap-2">
-                            {ticket.system_code && (
+                            {ticket.code && (
+                                <span className="font-mono text-[11px] text-muted-foreground">
+                                    {ticket.code}
+                                </span>
+                            )}
+
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                                {ticket.system_code && (
+                                    <Badge
+                                        variant="outline"
+                                        className="border-muted-foreground/20 bg-muted/10 px-2 py-0 font-mono"
+                                    >
+                                        {ticket.system_code}
+                                    </Badge>
+                                )}
+
                                 <Badge
                                     variant="secondary"
-                                    className="text-[10px]"
+                                    className="px-2 py-0 text-[11px] uppercase"
                                 >
-                                    {ticket.system_code}
+                                    {ticket.category}
                                 </Badge>
-                            )}
-                            <Badge variant="secondary" className="text-[10px]">
-                                {ticket.category.toUpperCase()}
-                            </Badge>
-                            <Badge variant="secondary" className="text-[10px]">
-                                Priority: {ticket.priority.toUpperCase()}
-                            </Badge>
-                            <Badge variant="secondary" className="text-[10px]">
-                                Status: {ticket.status.toUpperCase()}
-                            </Badge>
+                            </div>
                         </div>
-                    </DialogDescription>
 
-                    <div className="items-center mt-3">
+                        {/* Kanan: Status + Priority */}
+                        <div className="flex flex-col items-end gap-2 text-[11px]">
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">
+                                    Status
+                                </span>
+                                <Badge
+                                    variant="outline"
+                                    className={`px-2 py-0 text-[11px] uppercase ${STATUS_CLASS[ticket.status] ?? ''} `}
+                                >
+                                    {ticket.status.replace('_', ' ')}
+                                </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">
+                                    Priority
+                                </span>
+                                <Badge
+                                    variant="outline"
+                                    className={`px-2 py-0 text-[11px] uppercase ${PRIORITY_CLASS[ticket.priority] ?? ''} `}
+                                >
+                                    {ticket.priority}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Milestone */}
+                    <div className="pt-2">
                         <TicketMilestone status={ticket.status} />
                     </div>
                 </DialogHeader>
 
-                <div className="space-y-4 mt-4">
-                    {/* <div className="gap-4 grid md:grid-cols-2 text-muted-background text-xs">
+                {/* BODY */}
+                <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
+                    {/* KIRI: description + attachments */}
+                    <div className="space-y-4">
                         <div className="space-y-1">
-                            <Label className="text-md uppercase tracking-wide">
-                                Created By
+                            <Label className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                                DESCRIPTION
                             </Label>
-                            <p>{ticket.created_by_name ?? '-'}</p>
+                            <div className="whitespace-pre-wrap rounded-md border bg-muted/10 p-3 text-sm">
+                                {ticket.description &&
+                                ticket.description.trim() !== ''
+                                    ? ticket.description
+                                    : 'No description.'}
+                            </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <Label className="text-md uppercase tracking-wide">
-                                Assigned To
-                            </Label>
-                            <p>{ticket.assigned_to_name ?? 'Unassigned'}</p>
-                        </div>
-
-                        <div className="space-y-1">
-                            <Label className="text-md uppercase tracking-wide">
-                                Created At
-                            </Label>
-                            <p>{ticket.created_at ?? '-'}</p>
-                        </div>
-
-                        <div className="space-y-1">
-                            <Label className="text-md uppercase tracking-wide">
-                                Due Date
-                            </Label>
-                            <p>{ticket.due_date ?? '-'}</p>
-                        </div>
-                    </div> */}
-
-                    <div className="gap-x-8 gap-y-4 grid md:grid-cols-2 text-xs text-center">
-                        {/* Created By */}
-                        <div className="space-y-0.5">
-                            <Label className="font-medium text-[10px] text-muted-foreground tracking-wide">
-                                CREATED BY
-                            </Label>
-                            <p className="text-foreground">
-                                {ticket.created_by_name ?? '-'}
-                            </p>
-                        </div>
-
-                        {/* Assigned To */}
-                        <div className="space-y-0.5">
-                            <Label className="font-medium text-[10px] text-muted-foreground tracking-wide">
-                                ASSIGNED TO
-                            </Label>
-                            <p className="text-foreground">
-                                {ticket.assigned_to_name ?? 'Unassigned'}
-                            </p>
-                        </div>
-
-                        {/* Created At */}
-                        <div className="space-y-0.5">
-                            <Label className="font-medium text-[10px] text-muted-foreground tracking-wide">
-                                CREATED AT
-                            </Label>
-                            <p className="text-foreground">
-                                {ticket.created_at ?? '-'}
-                            </p>
-                        </div>
-
-                        {/* Due Date */}
-                        <div className="space-y-0.5">
-                            <Label className="font-medium text-[10px] text-muted-foreground tracking-wide">
-                                DUE DATE
-                            </Label>
-                            <p className="text-foreground">
-                                {ticket.due_date ?? '-'}
-                            </p>
-                        </div>
+                        {ticket.attachments &&
+                            ticket.attachments.length > 0 && (
+                                <div className="space-y-1">
+                                    <Label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                                        Attachments
+                                    </Label>
+                                    <ul className="space-y-1 text-xs">
+                                        {ticket.attachments.map((att) => (
+                                            <li key={att.id}>
+                                                <a
+                                                    href={att.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-primary hover:underline"
+                                                >
+                                                    {att.original_name}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                     </div>
 
-                    <div className="space-y-1">
-                        <div className="bg-muted/20 p-3 border rounded-md text-sm whitespace-pre-wrap">
-                            {ticket.description &&
-                            ticket.description.trim() !== ''
-                                ? ticket.description
-                                : 'No description.'}
+                    {/* KANAN: info meta */}
+                    <div className="space-y-3 rounded-md border border-dashed border-border/60 bg-muted/5 p-3 text-xs">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                            <div className="space-y-0.5">
+                                <Label className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                                    CREATED BY
+                                </Label>
+                                <p className="truncate text-foreground">
+                                    {ticket.created_by_name ?? '-'}
+                                </p>
+                            </div>
+
+                            <div className="space-y-0.5">
+                                <Label className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                                    DEPARTMENT
+                                </Label>
+                                <p className="truncate text-foreground">
+                                    {ticket.department ?? '-'}
+                                </p>
+                            </div>
+
+                            <div className="space-y-0.5">
+                                <Label className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                                    ASSIGNED TO
+                                </Label>
+                                <p className="truncate text-foreground">
+                                    {ticket.assigned_to_name ?? 'Unassigned'}
+                                </p>
+                            </div>
+
+                            <div className="space-y-0.5">
+                                <Label className="text-[10px] font-medium tracking-wide text-muted-foreground">
+                                    CREATED AT
+                                </Label>
+                                <p className="truncate text-foreground whitespace-normal">
+                                    {ticket.created_at ?? '-'}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    
-                    {ticket.attachments && ticket.attachments.length > 0 && (
-                        <div className="space-y-1">
-                            <Label className="text-[10px] uppercase tracking-wide">
-                                Attachments
-                            </Label>
-                            <ul className="space-y-1 text-xs">
-                                {ticket.attachments.map((att) => (
-                                    <li key={att.id}>
-                                        <a
-                                            href={att.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-primary hover:underline"
-                                        >
-                                            {att.original_name}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
                 </div>
             </DialogContent>
         </Dialog>

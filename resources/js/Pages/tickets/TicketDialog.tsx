@@ -161,7 +161,7 @@ export function TicketDialog({
                   </SelectContent>
               </Select>
               {errors.system_id && (
-                  <span className="text-red-500 text-xs">
+                  <span className="text-xs text-red-500">
                       {errors.system_id}
                   </span>
               )}
@@ -182,7 +182,7 @@ export function TicketDialog({
                   className="placeholder:dark:text-gray-400"
               />
               {errors.title && (
-                  <span className="text-red-500 text-xs">{errors.title}</span>
+                  <span className="text-xs text-red-500">{errors.title}</span>
               )}
           </div>
 
@@ -197,7 +197,7 @@ export function TicketDialog({
                   className="placeholder:text-muted-foreground"
               />
               {errors.description && (
-                  <span className="text-red-500 text-xs">
+                  <span className="text-xs text-red-500">
                       {errors.description}
                   </span>
               )}
@@ -205,7 +205,7 @@ export function TicketDialog({
 
           {/* Category + Priority */}
           <div className="space-y-3">
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {/* Category */}
                   <div className="space-y-1">
                       <Label
@@ -233,111 +233,122 @@ export function TicketDialog({
                           </SelectContent>
                       </Select>
                       {errors.category && (
-                          <span className="text-red-500 text-xs">
+                          <span className="text-xs text-red-500">
                               {errors.category}
                           </span>
                       )}
                   </div>
 
                   {/* Priority */}
-                  <div className="space-y-1">
-                      <Label
-                          htmlFor="priority"
-                          className="flex items-center gap-1"
-                      >
-                          Priority
-                      </Label>
-                      <Select
-                          value={data.priority}
-                          onValueChange={(value: TicketPriority) =>
-                              setData('priority', value)
-                          }
-                          disabled={priorityDisabled}
-                      >
-                          <SelectTrigger id="priority">
-                              <SelectValue placeholder="Pilih priority" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              {priorityOptions.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                      {opt.label}
-                                  </SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                      {errors.priority && (
-                          <span className="text-red-500 text-xs">
-                              {errors.priority}
-                          </span>
-                      )}
-                  </div>
+                  {canManagePriority && (
+                      <div className="space-y-1">
+                          <Label
+                              htmlFor="priority"
+                              className="flex items-center gap-1"
+                          >
+                              Priority
+                          </Label>
+                          <Select
+                              value={data.priority}
+                              onValueChange={(value: TicketPriority) =>
+                                  setData('priority', value)
+                              }
+                              disabled={priorityDisabled}
+                          >
+                              <SelectTrigger id="priority">
+                                  <SelectValue placeholder="Pilih priority" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  {priorityOptions.map((opt) => (
+                                      <SelectItem
+                                          key={opt.value}
+                                          value={opt.value}
+                                      >
+                                          {opt.label}
+                                      </SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                          {errors.priority && (
+                              <span className="text-xs text-red-500">
+                                  {errors.priority}
+                              </span>
+                          )}
+                      </div>
+                  )}
               </div>
           </div>
 
-          {/* Status + Due date */}
-          <div className="space-y-3">
-              <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-                  {/* Status */}
-                  <div className="space-y-1">
-                      <Label
-                          htmlFor="status"
-                          className="flex items-center gap-1"
-                      >
-                          Status
-                      </Label>
-                      <Select
-                          value={data.status}
-                          onValueChange={(value: TicketStatus) =>
-                              setData('status', value)
-                          }
-                          disabled={statusDisabled}
-                      >
-                          <SelectTrigger id="status">
-                              <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                              {statusOptions.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                      {opt.label}
-                                  </SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                      {errors.status && (
-                          <span className="text-red-500 text-xs">
-                              {errors.status}
-                          </span>
-                      )}
-                  </div>
+          {canManageStatus && (
+              <div className="space-y-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {/* Status */}
+                      <div className="space-y-1">
+                          <Label
+                              htmlFor="status"
+                              className="flex items-center gap-1"
+                          >
+                              Status
+                          </Label>
+                          <Select
+                              value={data.status}
+                              onValueChange={(value: TicketStatus) =>
+                                  setData('status', value)
+                              }
+                              disabled={statusDisabled}
+                          >
+                              <SelectTrigger id="status">
+                                  <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  {statusOptions.map((opt) => (
+                                      <SelectItem
+                                          key={opt.value}
+                                          value={opt.value}
+                                      >
+                                          {opt.label}
+                                      </SelectItem>
+                                  ))}
+                              </SelectContent>
+                          </Select>
+                          {errors.status && (
+                              <span className="text-xs text-red-500">
+                                  {errors.status}
+                              </span>
+                          )}
+                      </div>
 
-                  {/* Due Date */}
-                  <div className="space-y-1">
-                      <Label
-                          htmlFor="due_date"
-                          className="flex items-center gap-1"
-                      >
-                          Due Date
-                      </Label>
-                      <Input
-                          id="due_date"
-                          type="date"
-                          value={data.due_date ?? ''}
-                          onChange={(e) => setData('due_date', e.target.value)}
-                          className="h-9 placeholder:text-muted-foreground" // <- SAMAIN
-                      />
-                      {errors.due_date && (
-                          <span className="text-red-500 text-xs">
-                              {errors.due_date}
-                          </span>
-                      )}
+                      {/* Due Date */}
+                      <div className="space-y-1">
+                          <Label
+                              htmlFor="due_date"
+                              className="flex items-center gap-1"
+                          >
+                              Due Date
+                          </Label>
+                          <Input
+                              id="due_date"
+                              type="date"
+                              value={data.due_date ?? ''}
+                              onChange={(e) =>
+                                  setData('due_date', e.target.value)
+                              }
+                              className="h-9 placeholder:text-muted-foreground"
+                          />
+                          {errors.due_date && (
+                              <span className="text-xs text-red-500">
+                                  {errors.due_date}
+                              </span>
+                          )}
+                      </div>
                   </div>
               </div>
-          </div>
+          )}
 
           {/* NEW: Assign To – hanya untuk admin/pm */}
           {canAssign && (
               <div className="space-y-1">
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                       <Label
                           htmlFor="assigned_to"
                           className="flex items-center gap-1"
@@ -376,7 +387,7 @@ export function TicketDialog({
                       </SelectContent>
                   </Select>
                   {errors.assigned_to && (
-                      <span className="text-red-500 text-xs">
+                      <span className="text-xs text-red-500">
                           {errors.assigned_to}
                       </span>
                   )}
@@ -387,7 +398,7 @@ export function TicketDialog({
           <div className="space-y-1">
               <Label htmlFor="attachment" className="flex items-center gap-1">
                   Attachment
-                  <span className="font-normal text-[10px] text-muted-foreground">
+                  <span className="text-[10px] font-normal text-muted-foreground">
                       (PDF / JPG / PNG, max 2MB)
                   </span>
               </Label>
@@ -401,7 +412,7 @@ export function TicketDialog({
                   }}
               />
               {errors.attachment && (
-                  <span className="text-red-500 text-xs">
+                  <span className="text-xs text-red-500">
                       {errors.attachment}
                   </span>
               )}
