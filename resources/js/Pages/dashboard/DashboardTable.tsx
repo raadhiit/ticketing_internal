@@ -1,4 +1,3 @@
-// resources/js/Components/table/DataTable.tsx
 'use client';
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
 import { cn } from '@/lib/utils';

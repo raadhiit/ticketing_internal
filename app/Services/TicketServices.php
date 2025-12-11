@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\ticket;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
