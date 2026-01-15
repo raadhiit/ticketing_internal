@@ -22,30 +22,15 @@ trait ToggleActive
         Model $model,
         string $resourceLabel = 'data'
     ): RedirectResponse {
-        $request->validate([
+        $validated = $request->validate([
             'is_active' => ['required', 'boolean'],
         ]);
 
-        try {
-            $model->update([
-                'is_active' => $request->boolean('is_active'),
-            ]);
+        $model->update($validated);
 
-            return back(303)->with(
-                'success',
-                "Status {$resourceLabel} berhasil diperbarui."
-            );
-        } catch (Throwable $th) {
-            Log::error("Error update {$resourceLabel} status", [
-                'message' => $th->getMessage(),
-                'file'    => $th->getFile(),
-                'line'    => $th->getLine(),
-            ]);
-
-            return back(303)->with(
-                'error',
-                "Gagal memperbarui status {$resourceLabel}."
-            );
-        }
+        return back(303)->with(
+            'success',
+            "Status {$resourceLabel} berhasil diperbarui."
+        );
     }
 }

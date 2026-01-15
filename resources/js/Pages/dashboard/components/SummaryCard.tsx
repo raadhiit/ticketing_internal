@@ -8,12 +8,6 @@ interface Props {
 
 export default function SummaryCard({ card }: Props) {
   const ui = summaryCardUI[card.id];
-  if (!ui) {
-      console.warn('Unknown card id:', card.id);
-  }
-  console.log('CARD ID:', card.id);
-  console.log('UI:', summaryCardUI[card.id]);
-
 
   return (
     <article className="flex items-center justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition hover:scale-105 hover:shadow-md">
