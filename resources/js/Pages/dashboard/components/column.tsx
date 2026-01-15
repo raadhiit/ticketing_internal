@@ -1,7 +1,7 @@
-import { ColumnDef } from "@tanstack/react-table";
-import type { TicketRow } from "./types/dashboard";
-import { StatusText } from "./StatusText";
+import { ColumnDef } from '@tanstack/react-table';
 import PriorityBadge from './PriorityBadge';
+import { StatusText } from './StatusText';
+import type { TicketRow } from '../types/dashboard';
 
 export const columns: ColumnDef<TicketRow>[] = [
     {
@@ -33,7 +33,7 @@ export const columns: ColumnDef<TicketRow>[] = [
         accessorKey: 'category',
         header: 'Category',
         cell: (info) => (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
                 {info.getValue() as string}
             </span>
         ),
@@ -43,7 +43,7 @@ export const columns: ColumnDef<TicketRow>[] = [
         accessorKey: 'priority',
         header: 'Priority',
         cell: (info) => <PriorityBadge priority={info.getValue() as any} />,
-        size: 140
+        size: 100,
     },
     {
         accessorKey: 'createdAt',

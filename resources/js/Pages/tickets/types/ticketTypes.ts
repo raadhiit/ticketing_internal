@@ -37,6 +37,10 @@ export type TicketFilters = {
 export type TicketsProps = PageProps<{
     tickets: {
         data: TicketRow[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
         links: any[];
     };
     systems: SystemOption[];

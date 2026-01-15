@@ -14,7 +14,6 @@ import {
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
     type ColumnDef,
@@ -22,6 +21,7 @@ import {
     type SortingState,
 } from '@tanstack/react-table';
 import * as React from 'react';
+import { router } from '@inertiajs/react';
 
 type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
@@ -30,8 +30,15 @@ type DataTableProps<TData, TValue> = {
     filterPlaceholder?: string;
     rightToolbarContent?: React.ReactNode;
     emptyMessage?: string;
-    statusFilterKey?: string; 
+    statusFilterKey?: string;
+    pagination: PaginationMeta;
 };
+
+type PaginationMeta = {
+    current_page: number;
+    last_page: number;
+};
+
 
 export function DataTable<TData, TValue>({
     columns,
@@ -41,6 +48,7 @@ export function DataTable<TData, TValue>({
     rightToolbarContent,
     emptyMessage = 'No data found.',
     statusFilterKey,
+    pagination
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
@@ -55,8 +63,9 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
     });
+
+    // console.log(table.getCanNextPage());
 
     const filterColumn = filterKey ? table.getColumn(filterKey) : undefined;
     // const statusColumn = table.getColumn('is_active');
@@ -67,7 +76,7 @@ export function DataTable<TData, TValue>({
     return (
         <div className="space-y-4">
             {/* Toolbar */}
-            <div className="flex flex-wrap justify-between items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 {/* KIRI: search + checkbox */}
                 <div className="flex items-center gap-3">
                     {filterColumn && (
@@ -81,15 +90,15 @@ export function DataTable<TData, TValue>({
                             onChange={(event) =>
                                 filterColumn.setFilterValue(event.target.value)
                             }
-                            className="border-2 border-neutral-300 dark:border-neutral-700 max-w-xs placeholder:text-muted-foreground"
+                            className="max-w-xs border border-neutral-300 placeholder:text-muted-foreground dark:border-neutral-700"
                         />
                     )}
 
                     {statusColumn && (
-                        <label className="inline-flex items-center gap-1 text-muted-foreground text-xs whitespace-nowrap shrink-0">
+                        <label className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-muted-foreground">
                             <input
                                 type="checkbox"
-                                className="rounded w-4 h-4 accent-neutral-700 dark:accent-neutral-300"
+                                className="h-4 w-4 rounded accent-neutral-700 dark:accent-neutral-300"
                                 checked={
                                     statusColumn.getFilterValue() === false
                                 }
@@ -109,7 +118,7 @@ export function DataTable<TData, TValue>({
             </div>
 
             {/* Table */}
-            <div className="border border-neutral-300 dark:border-neutral-700 rounded-lg">
+            <div className="rounded-lg border border-neutral-300 dark:border-neutral-700">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -117,7 +126,7 @@ export function DataTable<TData, TValue>({
                                 {headerGroup.headers.map((header) => (
                                     <TableHead
                                         key={header.id}
-                                        className="font-semibold text-foreground text-xs md:text-sm lg:text-base text-center whitespace-nowrap"
+                                        className="whitespace-nowrap text-center text-xs font-semibold text-foreground md:text-sm lg:text-base"
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -144,7 +153,7 @@ export function DataTable<TData, TValue>({
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
                                             key={cell.id}
-                                            className="items-center md:text-md text-base lg:text-base text-center align-middle"
+                                            className="md:text-md items-center text-center align-middle text-base lg:text-base"
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
@@ -158,7 +167,7 @@ export function DataTable<TData, TValue>({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-muted-foreground text-sm text-center"
+                                    className="h-24 text-center text-sm text-muted-foreground"
                                 >
                                     {emptyMessage}
                                 </TableCell>
@@ -169,44 +178,72 @@ export function DataTable<TData, TValue>({
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-between items-center gap-2">
-                <div className="text-foreground text-xs">
-                    Page {table.getState().pagination.pageIndex + 1} of{' '}
-                    {table.getPageCount() || 1}
+            <div className="flex items-center justify-between gap-2">
+                <div className="text-xs text-foreground">
+                    Page {pagination.current_page} of {pagination.last_page}
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
+                        onClick={() =>
+                            router.get(
+                                route('tickets.index'),
+                                { page: 1 },
+                                { preserveState: true, preserveScroll: true },
+                            )
+                        }
+                        disabled={pagination.current_page === 1}
                     >
                         First
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Prev
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
+
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                            table.setPageIndex(table.getPageCount() - 1)
+                            router.get(
+                                route('tickets.index'),
+                                { page: pagination.current_page - 1 },
+                                { preserveState: true, preserveScroll: true },
+                            )
                         }
-                        disabled={!table.getCanNextPage()}
+                        disabled={pagination.current_page === 1}
+                    >
+                        Prev
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            router.get(
+                                route('tickets.index'),
+                                { page: pagination.current_page + 1 },
+                                { preserveState: true, preserveScroll: true },
+                            )
+                        }
+                        disabled={
+                            pagination.current_page === pagination.last_page
+                        }
+                    >
+                        Next
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            router.get(
+                                route('tickets.index'),
+                                { page: pagination.last_page },
+                                { preserveState: true, preserveScroll: true },
+                            )
+                        }
+                        disabled={
+                            pagination.current_page === pagination.last_page
+                        }
                     >
                         Last
                     </Button>

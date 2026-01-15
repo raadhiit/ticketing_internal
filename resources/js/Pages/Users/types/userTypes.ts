@@ -14,6 +14,10 @@ export type Role = {
 export type UsersPageProps = PageProps<{
     users: {
         data: UserRow[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
         links: any[];
     };
     departments: Department[];

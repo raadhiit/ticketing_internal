@@ -17,7 +17,7 @@ const variantMap: Record<
   { bg: string; text: string; ring?: string; label: string }
 > = {
   unassigned: {
-    bg: 'bg-gray-100 dark:bg-gray-800',
+    bg: 'bg-gray-200 dark:bg-gray-800',
     text: 'text-gray-700 dark:text-gray-200',
     label: 'UNASSIGNED',
   },
@@ -47,14 +47,14 @@ export default function PriorityBadge({
   priority,
   className,
   size = 'md',
-  uppercase = true,
+  uppercase = false,
 }: Props) {
   const v = variantMap[priority] ?? variantMap.unassigned;
   const base = 'inline-flex items-center rounded-full font-semibold';
   const sizeClass =
     size === 'sm'
       ? 'px-2 py-0.5 text-xs'
-      : 'px-3 py-1 text-sm'; // md
+      : 'px-2 text-[11px]'; // md
 
   return (
     <span

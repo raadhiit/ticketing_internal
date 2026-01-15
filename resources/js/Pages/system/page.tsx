@@ -24,6 +24,10 @@ export default function SysPage() {
                                 data={systems.data}
                                 filterKey="name"
                                 filterPlaceholder="Cari nama system"
+                                pagination={{
+                                    current_page: systems.current_page,
+                                    last_page: systems.last_page,
+                                }}
                                 rightToolbarContent={
                                     canManageSystems && (
                                         <SystemDialog mode="create" />

@@ -2,55 +2,62 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\ticket;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TicketServices
 {
-    public function visibleQueryFor(User $user): Builder 
-    {
-        $query = ticket::query();
+    public function history(
+        User $user,
+        Request $request,
+        int $perPage = 5
+    ): LengthAwarePaginator {
+        $query = Ticket::query()
+            ->visibleTo($user)
+            ->whereIn('status', ['open', 'in_progress'])
+            ->select([
+                'id',
+                'code',
+                'title',
+                'status',
+                'category',
+                'priority',
+                'system_id',
+                'created_at',
+            ])
+            ->with(['system:id,code']);
 
-        $from = Carbon::now()->subMonth()->startOfDay();
-        $query->where('created_at', '>=', $from);
-
-        if ($user->can('tickets.view.all')) {
-            return $query;
+        if ($request->filled('q')) {
+            $query->where('code', 'like', '%' . $request->q . '%');
         }
 
-        return $query->where(function (Builder $q) use ($user) {
-            if ($user->can('tickets.view.own')) {
-                $q->orWhere('created_by', $user->id);
-            }
+        $from = $request->filled('date_from')
+            ? Carbon::parse($request->date_from)->startOfDay()
+            : now()->startOfDay();
 
-            if ($user->can('tickets.view.assigned')) {
-                $q->orWhere('assigned_to', $user->id);
-            }
-        });
-    }
+        $to = $request->filled('date_to')
+            ? Carbon::parse($request->date_to)->endOfDay()
+            : now()->endOfDay();
 
-    public function getHistoryForUser(User $user, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->visibleQueryFor($user)
-            ->with([
-                'system:id,code',
-            ])
-            ->latest()
+        return $query
+            ->whereBetween('created_at', [$from, $to])
+            ->orderByDesc('created_at')
             ->paginate($perPage)
             ->withQueryString()
-            ->through(function (ticket $ticket) {
-                return [
-                    'code'      => $ticket->code,
-                    'title'     => $ticket->title,
-                    'status'    => $ticket->status,
-                    'category'  => $ticket->category,
-                    'system'    => $ticket->system?->code,
-                    'priority'    => $ticket->priority,
-                    'createdAt'   => optional($ticket->created_at)->format('Y-m-d H:i:s'),
-                ];
-            });
+            ->through(fn(Ticket $ticket) => [
+                'id'        => $ticket->id,
+                'code'      => $ticket->code,
+                'title'     => $ticket->title,
+                'status'    => $ticket->status,
+                'category'  => $ticket->category,
+                'priority'  => $ticket->priority,
+                'system'    => $ticket->system?->code,
+                'createdAt' => optional($ticket->created_at)
+                    ->format('Y-m-d H:i:s'),
+            ]);
     }
 }

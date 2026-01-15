@@ -20,19 +20,18 @@ export default function UserPage() {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-4">
-                    <div className="overflow-hidden rounded-lg border-2 bg-card shadow-md">
+                    <div className="overflow-hidden rounded-lg border bg-card shadow">
                         <div className="p-4">
                             <DataTable<UserRow, unknown>
                                 columns={Columns}
                                 data={users.data}
                                 filterKey="name"
                                 filterPlaceholder="Filter by Cari User"
+                                pagination={{
+                                    current_page: users.current_page,
+                                    last_page: users.last_page,
+                                }}
                                 rightToolbarContent={
-                                    // <UserFormDialog
-                                    //     mode="create"
-                                    //     departments={departments}
-                                    //     role={role}
-                                    // />
                                     canManageUsers && ( // ⬅️ HANYA ADMIN/PM DSB
                                         <UserFormDialog
                                             mode="create"

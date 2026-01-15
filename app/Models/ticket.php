@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -52,19 +53,40 @@ class ticket extends Model
         return $this->hasMany(tasks::class);
     }
 
-    public function scopeForUserRole($query, User $user)
+    public function scopeVisibleTo(Builder $query, User $user)
     {
-        if ($user->hasRole('user')) {
-            // user biasa: cuma liat ticket yang dia buat
+        if ($user->can('tickets.view.all')){
+            return $query;
+        }
+
+        if ($user->can('tickets.view.own') && !$user->can('tickets.view.assigned')) {
             return $query->where('created_by', $user->id);
         }
 
-        if ($user->hasRole('dev')) {
-            // dev: cuma liat ticket yang assigned ke dia
+        if (!$user->can('tickets.view.own') && $user->can('tickets.view.assigned')) {
             return $query->where('assigned_to', $user->id);
         }
 
-        // admin / pm: liat semua
-        return $query;
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('created_by', $user->id)
+                ->orWhere('assigned_to', $user->id);
+        });
+    }
+
+    public function scopeForUserRole($query, User $user)
+    {
+        if ($user->can('tickets.view.all')) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($user) {
+            if ($user->can('tickets.view.own')) {
+                $q->orWhere('created_by', $user->id);
+            }
+
+            if ($user->can('tickets.view.assigned')) {
+                $q->orWhere('assigned_to', $user->id);
+            }
+        });
     }
 }

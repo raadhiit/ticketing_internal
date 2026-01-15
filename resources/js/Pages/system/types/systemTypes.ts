@@ -22,6 +22,10 @@ export type SystemProps = PageProps & {
     systems: {
         data: SystemRow[];
         links: any[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
     };
     canManageSystems: boolean;
 };

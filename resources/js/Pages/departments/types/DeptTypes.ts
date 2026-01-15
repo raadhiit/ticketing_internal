@@ -11,6 +11,10 @@ export type DepartmentsRow = {
 export type DepartmentsProps = PageProps<{
     departments: {
         data: DepartmentsRow[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
         links: any[];
     };
     canManageDepartments: boolean;

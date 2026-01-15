@@ -34,10 +34,15 @@ export default function TicketPage() {
     const [localCode, setLocalCode] = useState(filters.code ?? '');
     const [isFiltering, setIsFiltering] = useState(false);
     const [filterOpen, setFilterOpen] = useState(false);
+    const prevCodeRef = React.useRef<string | null>(null);
+
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            if (localCode === (filters.code ?? '')) return;
+            // if (localCode === (filters.code ?? '')) return;
+            if (prevCodeRef.current === localCode) return;
+
+            prevCodeRef.current = localCode;
 
             setIsFiltering(true);
 
@@ -109,7 +114,7 @@ export default function TicketPage() {
 
             <div className="space-y-4 py-4">
                 <div className="lg:max-w-8xl mx-auto sm:px-6 lg:px-4">
-                    <div className="overflow-hidden rounded-lg border-2 bg-card p-4 mb-5 shadow-md">
+                    <div className="mb-5 overflow-hidden rounded-lg border-2 bg-card p-4 shadow-md">
                         {/* FILTER BAR */}
                         <div className="mb-5 space-y-3">
                             {/* Row 0: Search + Filters button */}
@@ -381,7 +386,6 @@ export default function TicketPage() {
                                 </Popover>
                             </div>
                         </div>
-
                     </div>
 
                     <div className="overflow-hidden rounded-lg border-2 bg-card p-4 shadow-md">
@@ -389,6 +393,10 @@ export default function TicketPage() {
                         <DataTable
                             columns={columns}
                             data={tickets.data}
+                            pagination={{
+                                current_page: tickets.current_page,
+                                last_page: tickets.last_page,
+                            }}
                             rightToolbarContent={
                                 canCreate && (
                                     <TicketDialog

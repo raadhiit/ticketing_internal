@@ -16,15 +16,19 @@ export default function DeptPage() {
             }
         >
             <Head title="Department" />
-            <div className='py-6'>
+            <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-4">
-                    <div className="overflow-hidden rounded-lg bg-card shadow-md border-2">
+                    <div className="overflow-hidden rounded-lg border-2 bg-card shadow-md">
                         <div className="p-4">
                             <DataTable
                                 columns={columns}
                                 data={departments.data}
-                                filterKey='name'
-                                filterPlaceholder='Cari nama department'
+                                filterKey="name"
+                                filterPlaceholder="Cari nama department"
+                                pagination={{
+                                    current_page: departments.current_page,
+                                    last_page: departments.last_page,
+                                }}
                                 rightToolbarContent={
                                     canManageDepartments && (
                                         <DeptFormDialog mode="create" />
@@ -35,7 +39,6 @@ export default function DeptPage() {
                     </div>
                 </div>
             </div>
-
         </AuthenticatedLayout>
-    )
+    );
 }

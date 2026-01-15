@@ -2,54 +2,45 @@
 
 namespace App\Services;
 
-use App\Models\ticket;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\ticket;
 
 class DashboardServices
 {
-    public function summaryCard(User $user): array
-    {
-        $rows = ticket::forUserRole($user)
-            ->selectRaw('status, COUNT(*) as total' )
+    public function summary(
+        User $user,
+        Carbon $from,
+        Carbon $to
+    ): array {
+        $rows = Ticket::query()
+            ->visibleTo($user)
+            ->whereBetween('created_at', [$from, $to])
+            ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
         return [
-            [
-                'id'          => 'active',
-                'label'       => 'Active Tickets',
-                'value'       => (int) ($rows['open'] ?? 0),
-                'description' => 'Tickets currently open',
-                // bg lembut, beda light/dark
-                'accentClass' => 'bg-emerald-100 dark:bg-emerald-500/40',
-                // icon warna kuat
-                'iconClass'   => 'text-emerald-600 dark:text-emerald-700',
-            ],
-            [
-                'id'          => 'pending',
-                'label'       => 'Pending Tickets',
-                'value'       => (int) ($rows['in_progress'] ?? 0),
-                'description' => 'Tickets in progress',
-                'accentClass' => 'bg-amber-100 dark:bg-amber-500/20',
-                'iconClass'   => 'text-amber-600 dark:text-amber-700',
-            ],
-            [
-                'id'          => 'resolved',
-                'label'       => 'Resolved Tickets',
-                'value'       => (int) ($rows['resolved'] ?? 0),
-                'description' => 'Tickets resolved',
-                'accentClass' => 'bg-sky-100 dark:bg-sky-500/20',
-                'iconClass'   => 'text-sky-600 dark:text-sky-700',
-            ],
-            [
-                'id'          => 'closed',
-                'label'       => 'Closed Tickets',
-                'value'       => (int) ($rows['closed'] ?? 0),
-                'description' => 'Tickets closed',
-                // closed = merah sendiri, jelas beda
-                'accentClass' => 'bg-rose-100 dark:bg-rose-700',
-                'iconClass'   => 'text-rose-600 dark:text-rose-700',
-            ],
+            $this->card('active',   'Active Tickets',   'open',        'Tickets currently open', $rows),
+            $this->card('pending',  'Pending Tickets',  'in_progress', 'Tickets in progress', $rows),
+            $this->card('resolved', 'Resolved Tickets', 'resolved',    'Tickets resolved', $rows),
+            $this->card('closed',   'Closed Tickets',   'closed',      'Tickets closed', $rows),
+        ];
+    }
+
+    private function card(
+        string $id,
+        string $label,
+        string $status,
+        string $description,
+        $rows
+    ): array {
+        return [
+            'id'          => $id,
+            'label'       => $label,
+            'value'       => (int) ($rows[$status] ?? 0),
+            'description' => $description,
+            'status'      => $status,
         ];
     }
 }

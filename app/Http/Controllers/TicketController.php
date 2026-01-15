@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Ticket\StoreRequest;
 use App\Http\Requests\Ticket\updateRequest;
+use Illuminate\Support\Str;
 
 class TicketController extends Controller
 {
@@ -23,20 +24,30 @@ class TicketController extends Controller
         $this->authorizeResource(ticket::class, 'ticket');
     }
 
-    protected function generateTicketCode()
+    protected function categoryPrefix(string $category)
     {
-        $lastTicket = Ticket::withTrashed()
-            ->lockForUpdate()       // kunci row selama transaksi
-            ->orderByDesc('id')
-            ->first();
+        return match ($category) {
+            'bug' => 'BUG',
+            'feature' => 'FEAT',
+            'improvement' => 'IMPR',
+            'support' => 'SUP',
+            default => 'TCK',
+        };
+    }
 
-        if ($lastTicket && preg_match('/(\d+)$/', $lastTicket->code, $m)) {
-            $nextNumber = (int) $m[1] + 1;
-        } else {
-            $nextNumber = 1;
-        }
+    protected function generateTicketCode(string $category)
+    {
+        do {
+            $code = sprintf(
+                '%s-%s',
+                $this->categoryPrefix($category),
+                strtoupper(Str::random(4))
+            );
+        } while (
+            Ticket::withTrashed()->where('code', $code)->exists()
+        );
 
-        return 'TCK-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        return $code;
     }
 
     public function index(Request $request)
@@ -141,6 +152,8 @@ class TicketController extends Controller
                 ->get(['id', 'name'])
             : collect();
 
+        // dd($tickets);
+
         return Inertia::render('tickets/page', [
             'tickets'           => $tickets,
             'systems'           => $systems,
@@ -177,7 +190,9 @@ class TicketController extends Controller
 
                 $payload['created_by'] = $user->id;
                 $payload['dept_id'] = $user->department_id;
-                $payload['code']       = $this->generateTicketCode();
+                $payload['code'] = $this->generateTicketCode(
+                    $payload['category']
+                );
 
                 // PRIORITY
                 if ($canManagePriority) {
