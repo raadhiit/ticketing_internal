@@ -6,7 +6,7 @@ export const summaryCardUI: Record<
 > = {
   active: {
     accent: 'bg-sky-100 dark:bg-sky-500/20',
-    icon: 'text-sky-600 dark:text-sky-800',
+    icon: 'text-sky-600 dark:text-sky-300',
   },
   pending: {
     accent: 'bg-amber-100 dark:bg-amber-500/20',
