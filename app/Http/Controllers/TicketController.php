@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Ticket\StoreRequest;
 use App\Http\Requests\Ticket\updateRequest;
+use App\Models\TicketCategory;
 use Illuminate\Support\Str;
 
 class TicketController extends Controller
@@ -24,27 +25,20 @@ class TicketController extends Controller
         $this->authorizeResource(ticket::class, 'ticket');
     }
 
-    protected function categoryPrefix(string $category)
+    protected function generateTicketCode(TicketCategory $category)
     {
-        return match ($category) {
-            'bug' => 'BUG',
-            'feature' => 'FEAT',
-            'improvement' => 'IMPR',
-            'support' => 'SUP',
-            default => 'TCK',
-        };
-    }
+        if (empty($category->code_prefix)) {
+            throw new \Exception('Ticket code prefix not set');
+        }
 
-    protected function generateTicketCode(string $category)
-    {
         do {
             $code = sprintf(
-                '%s-%s',
-                $this->categoryPrefix($category),
-                strtoupper(Str::random(4))
+                '%s-$s',
+                strtoupper($category->code_prefix),
+                strtoupper(Str::random(6))
             );
         } while (
-            Ticket::withTrashed()->where('code', $code)->exists()
+            ticket::withTrashed()->where('code', $code)->exists()
         );
 
         return $code;
@@ -56,36 +50,34 @@ class TicketController extends Controller
 
         $query = ticket::with([
             'system:id,code',
+            'category:id,key,name,code_prefix',
             'createdBy:id,name',
             'assignedTo:id,name',
             'attachments:id,ticket_id,original_name,path',
             'department:id,name',
         ]);
 
-        if ($user->hasRole('user')) {
-            $query->where('created_by', $user->id);
-        } elseif ($user->hasRole('dev')) {
-            $query->where('assigned_to', $user->id);
-        }
-
-        $simpleFilters = $request->only([
+        $filters = $request->only([
             'system_id',
-            'category',
+            'category_id',
             'priority',
             'status',
         ]);
 
-        foreach ($simpleFilters as $field => $value) {
+        foreach ($filters as $field => $value) {
             if ($value !== null && $value !== '') {
                 $query->where($field, $value);
             }
         }
 
-        if ($request->filled('code')) {
-            $code = $request->input('code');
-            $query->where('code', 'like', '%' . $code . '%');
+        // if ($request->filled('code')) {
+        //     $code = $request->input('code');
+        //     $query->where('code', 'like', '%' . $code . '%');
+        //     $filters['code'] = $code;
+        // }
 
-            $filters['code'] = $code;
+        if ($request->filled('code')) {
+            $query->where('code', 'like', '%' . $request->code . '%');
         }
 
         $tickets = $query
@@ -94,45 +86,45 @@ class TicketController extends Controller
             ->withQueryString()
             ->through(function (Ticket $ticket) {
                 return [
-                    'id'          => $ticket->id,
-                    'code'        => $ticket->code,
-                    'title'       => $ticket->title,
-                    'description' => $ticket->description,
+                    'id'    => $ticket->id,
+                    'code'  => $ticket->code,
+                    'title' => $ticket->title,
 
-                    'system_id'   => $ticket->system_id,
-                    'system_code' => $ticket->system?->code, // ⬅️ INI YANG DIBACA TABLE
-
-                    'category'    => $ticket->category,
-                    'priority'    => $ticket->priority,
-                    'status'      => $ticket->status,
-                    'due_date' => $ticket->due_date
-                        ? Carbon::parse($ticket->due_date)->format('Y-m-d')
-                        : null,
-
-                    'createdBy'   => [
-                        'id'   => $ticket->createdBy->id,
-                        'name' => $ticket->createdBy->name,
+                    'system' => [
+                        'id'   => $ticket->system_id,
+                        'code' => $ticket->system?->code,
                     ],
-                    'assigned_to' => $ticket->assigned_to,
-                    'assignedTo'  => $ticket->assignedTo
+
+                    'category' => [
+                        'id'   => $ticket->category->id,
+                        'key'  => $ticket->category->key,
+                        'name' => $ticket->category->name,
+                    ],
+
+                    'priority' => $ticket->priority,
+                    'status'   => $ticket->status,
+                    'due_date' => $ticket->due_date,
+
+                    'assignedTo' => $ticket->assignedTo
                         ? [
                             'id'   => $ticket->assignedTo->id,
                             'name' => $ticket->assignedTo->name,
                         ]
                         : null,
-                    'attachments' => $ticket->attachments->map(function ($att) {
-                        return [
-                            'id'            => $att->id,
-                            'original_name' => $att->original_name,
-                            'url'           => asset('storage/' . $att->path),
-                        ];
-                    }),
-                    'created_at'  => $ticket->created_at?->toDateTimeString(),
-                    'updated_at'  => $ticket->updated_at?->toDateTimeString(),
-                    'department'    => $ticket->department?->name,
-                    'department_id' => $ticket->dept_id,
+
+                    'created_at' => $ticket->created_at?->toDateTimeString(),
                 ];
             });
+
+        // return Inertia::render('tickets/page', [
+        //     'tickets'    => $tickets,
+        //     'systems'    => System::orderBy('code')->get(['id', 'code']),
+        //     'categories' => TicketCategory::active()->ordered()
+        //         ->get(['id', 'key', 'name']),
+        //     'priorities' => ['unassigned', 'low', 'medium', 'high', 'urgent'],
+        //     'statuses'   => ['open', 'in_progress', 'resolved', 'closed'],
+        //     'filters'    => $filters,
+        // ]);
 
         $systems = system::orderBy('code')->get(['id', 'code']);
 
@@ -170,7 +162,7 @@ class TicketController extends Controller
             'canManageStatus'   => $canManageStatus,
             'canViewNetwork'    => $canViewNetwork,
             'assignees'         => $assignees,
-            'filters'           => $simpleFilters,
+            'filters'           => $filters,
         ]);
     }
 

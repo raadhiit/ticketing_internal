@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { TicketRow, TicketsProps, TicketForEdit, TicketDetail } from './types/ticketTypes';
+import { TicketRow, TicketsProps, TicketForEdit, TicketDetail } from '../types/ticketTypes';
 import { TicketPriorityBadge } from '@/Components/badge/PriorityBadge';
 import { TicketStatusBadge } from '@/Components/badge/StatusBadge';
 import { TicketCategoryBadge } from '@/Components/badge/CategoryBadge';

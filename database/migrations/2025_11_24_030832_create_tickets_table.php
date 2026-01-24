@@ -25,14 +25,16 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users');
 
+            $table->foreignId('category_id')
+                ->constrained('ticket_categories')
+                ->restrictOnDelete()
+                ->index();
+
             // BUSINESS FIELDS
             $table->string('code')->unique();
 
             $table->string('title');
             $table->text('description')->nullable();
-
-            $table->enum('category', ['bug', 'feature', 'improvement', 'support'])
-                ->default('bug');
 
             $table->enum('priority', ['unassigned', 'low', 'medium', 'high', 'urgent'])
                 ->default('unassigned')

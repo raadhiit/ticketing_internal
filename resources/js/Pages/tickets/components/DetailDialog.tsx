@@ -13,7 +13,7 @@ import { Label } from '@/Components/ui/label';
 import { Eye } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 import { TicketMilestone } from './TicketMilestone';
-import type { TicketDetail } from './types/ticketTypes';
+import type { TicketDetail } from '../types/ticketTypes';
 
 type TicketDetailDialogProps = {
     ticket: TicketDetail;

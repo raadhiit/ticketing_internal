@@ -6,13 +6,11 @@ import {
     Tickets,
     type LucideIcon,
 } from 'lucide-react';
-import { RoleName } from '@/types';
 
 export type SidebarItem = {
     title: string;
     routeName: string;
     icon: LucideIcon;
-    // role?: RoleName[];
     requiresPermission?: string[];
 };
 
@@ -52,6 +50,12 @@ export const sidebarSections: SidebarSection[] = [
                 icon: Boxes,
                 requiresPermission: ['systems.manage'],
             },
+            {
+                title: 'Categories',
+                routeName: '',
+                icon: Boxes,
+                requiresPermission: ['categories.manage'],
+            }
         ],
     },
     {

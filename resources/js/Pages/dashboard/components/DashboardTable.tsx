@@ -80,7 +80,7 @@ export default function DashboardTable<T>({
                         {/* FILTER POPOVER */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="lg">
                                     <Funnel className="mr-1 h-4 w-4" />
                                     Filters
                                 </Button>
@@ -88,7 +88,7 @@ export default function DashboardTable<T>({
 
                             <PopoverContent
                                 align="end"
-                                className="w-72 space-y-3 text-xs"
+                                className="w-full space-y-3 text-xs"
                             >
                                 <div className="border-b pb-2">
                                     <p className="text-[11px] font-semibold text-muted-foreground">
@@ -96,30 +96,33 @@ export default function DashboardTable<T>({
                                     </p>
                                 </div>
 
-                                {/* DATE FROM */}
-                                <div className="space-y-1">
-                                    <Label className="text-[11px]">From</Label>
-                                    <Input
-                                        type="date"
-                                        value={draftDateFrom ?? ''}
-                                        onChange={(e) =>
-                                            setDraftDateFrom(e.target.value)
-                                        }
-                                        className="h-8 text-xs"
-                                    />
-                                </div>
 
-                                {/* DATE TO */}
-                                <div className="space-y-1">
-                                    <Label className="text-[11px]">To</Label>
-                                    <Input
-                                        type="date"
-                                        value={draftDateTo ?? ''}
-                                        onChange={(e) =>
-                                            setDraftDateTo(e.target.value)
-                                        }
-                                        className="h-8 text-xs"
-                                    />
+                                <div className="grid grid-cols-2 gap-2">
+                                    {/* DATE FROM */}
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px]">From</Label>
+                                        <Input
+                                            type="date"
+                                            value={draftDateFrom ?? ''}
+                                            onChange={(e) =>
+                                                setDraftDateFrom(e.target.value)
+                                            }
+                                            className="h-8 text-xs"
+                                        />
+                                    </div>
+
+                                    {/* DATE TO */}
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px]">To</Label>
+                                        <Input
+                                            type="date"
+                                            value={draftDateTo ?? ''}
+                                            onChange={(e) =>
+                                                setDraftDateTo(e.target.value)
+                                            }
+                                            className="h-8 text-xs"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* FOOTER */}

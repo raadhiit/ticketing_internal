@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { TicketStatus } from './types/ticketTypes';
+import type { TicketStatus } from '../types/ticketTypes';
 
 const STATUS_ORDER: TicketStatus[] = [
     'open',

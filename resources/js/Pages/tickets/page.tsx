@@ -1,8 +1,8 @@
 import { DataTable } from '@/Components/table/DataTable';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { columns } from './column';
-import { TicketDialog } from './TicketDialog';
+import { columns } from '../tickets/components/column';
+import { TicketDialog } from '../tickets/components/TicketDialog';
 import { TicketFilters } from '../tickets/components/TicketFilters';
 import type { TicketsProps } from './types/ticketTypes';
 import { useTicketFilters } from '../tickets/hooks/useTicketFilters';

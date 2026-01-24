@@ -21,8 +21,7 @@ import type {
   TicketStatus,
   TicketFormDialogProps,
   TicketFormData,
-
-} from './types/ticketTypes';
+} from '../types/ticketTypes';
 
 export function TicketDialog({
   mode,

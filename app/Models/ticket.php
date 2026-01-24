@@ -13,10 +13,10 @@ class ticket extends Model
         'system_id',
         'created_by',
         'assigned_to',
+        'category_id',
         'code',
         'title',
         'description',
-        'category',
         'priority',
         'status',
         'due_date',
@@ -26,6 +26,11 @@ class ticket extends Model
     public function system()
     {
         return $this->belongsTo(System::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(TicketCategory::class);
     }
 
     public function createdBy()

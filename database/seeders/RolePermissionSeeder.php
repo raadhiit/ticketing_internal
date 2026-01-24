@@ -25,6 +25,7 @@ class RolePermissionSeeder extends Seeder
             'departments.manage',
             'systems.manage',
             'users.manage',
+            'categories.manage',
 
             // TICKETS
             'tickets.view.all',
@@ -68,6 +69,7 @@ class RolePermissionSeeder extends Seeder
         $pm->syncPermissions([
             'departments.manage',      // opsional, kalau PM boleh manage departemen
             'systems.manage',
+            'categories.manage',
 
             'tickets.view.all',
             'tickets.view.own',

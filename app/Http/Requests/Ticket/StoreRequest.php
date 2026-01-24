@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
             ],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['required', 'in:bug,feature,improvement,support'],
+            'category_id' => ['required', 'exists:ticket_categories.id'],
             'priority' => ['required', 'in:unassigned,low,medium,high,urgent'],
             'status' => ['required', 'in:open,in_progress,resolved,closed'],
             'due_date' => ['nullable', 'date'],
@@ -42,13 +42,9 @@ class StoreRequest extends FormRequest
         return [
             'system_id.required' => 'System wajib dipilih.',
             'system_id.exists'   => 'System tidak valid.',
-
             'title.required'     => 'Judul wajib diisi.',
             'title.max'          => 'Judul maksimal 255 karakter.',
-
-            'category.required'  => 'Kategori wajib dipilih.',
-            'category.in'        => 'Kategori tidak valid.',
-
+            'category_id.required'  => 'Kategori wajib dipilih.',
             'priority.in'        => 'Priority tidak valid.',
             'status.in'          => 'Status tidak valid.',
             'due_date.date'      => 'Due date tidak valid.',
